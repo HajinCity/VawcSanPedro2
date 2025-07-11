@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "556934618759",
+    "project_id": "vawcsanpedropagadian",
+    "storage_bucket": "vawcsanpedropagadian.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:556934618759:android:04fb348073773606d9e222",
+        "android_client_info": {
+          "package_name": "com.example.vawcsanpedro2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8oDWodN5Svb5NEoBaml5RWSKyxfyrf0I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
