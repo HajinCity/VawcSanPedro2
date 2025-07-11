@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.*
+import androidx.navigation.NavHostController
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,9 +28,9 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ComplaintFormScreen() {
+fun ComplaintFormScreen(navController: NavHostController) {
+
     val db = FirebaseFirestore.getInstance()
     val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     val today = dateFormatter.format(Date())
@@ -63,6 +64,18 @@ fun ComplaintFormScreen() {
     val scrollState = rememberScrollState()
 
     val showSuccessDialog = remember { mutableStateOf(false) }
+
+    // ⬇ Navigation Trigger
+    val navigateToLandingPage = remember { mutableStateOf(false) }
+
+    if (navigateToLandingPage.value) {
+        LaunchedEffect(Unit) {
+            navController.navigate("landing") { // ✅ Correct route name
+                popUpTo("complaint_form") { inclusive = true }
+            }
+        }
+    }
+
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -104,6 +117,15 @@ fun ComplaintFormScreen() {
             DropdownField("Purok", complainant.address.purok, purokOptions) {
                 complainant = complainant.copy(address = complainant.address.copy(purok = it))
             }
+            FormField("Municipality", complainant.address.municipality) {
+                complainant = complainant.copy(address = complainant.address.copy(municipality = it))
+            }
+            FormField("Province", complainant.address.province) {
+                complainant = complainant.copy(address = complainant.address.copy(province = it))
+            }
+            FormField("Region", complainant.address.region) {
+                complainant = complainant.copy(address = complainant.address.copy(region = it))
+            }
 
             SectionHeader("Respondent Personal Information")
             FormField("Last Name", respondent.lastName) { respondent = respondent.copy(lastName = it) }
@@ -129,6 +151,16 @@ fun ComplaintFormScreen() {
             DropdownField("Purok", respondent.address.purok, purokOptions) {
                 respondent = respondent.copy(address = respondent.address.copy(purok = it))
             }
+            FormField("Municipality", respondent.address.municipality) {
+                respondent = respondent.copy(address = respondent.address.copy(municipality = it))
+            }
+            FormField("Province", respondent.address.province) {
+                respondent = respondent.copy(address = respondent.address.copy(province = it))
+            }
+            FormField("Region", respondent.address.region) {
+                respondent = respondent.copy(address = respondent.address.copy(region = it))
+            }
+
 
             SectionHeader("Complaint Information")
             DateField("Incident Date", caseDetails.incidentDate) {
@@ -137,11 +169,21 @@ fun ComplaintFormScreen() {
             DropdownField("Place of the Incident", caseDetails.placeOfIncident.place, incidentPlaceOptions) {
                 caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(place = it))
             }
+
             DropdownField("Purok", caseDetails.placeOfIncident.purok, purokOptions) {
                 caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(purok = it))
             }
             FormField("Barangay", caseDetails.placeOfIncident.barangay) {
                 caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(barangay = it))
+            }
+            FormField("Municipality", caseDetails.placeOfIncident.municipality) {
+                caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(municipality = it))
+            }
+            FormField("Province", caseDetails.placeOfIncident.province) {
+                caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(province = it))
+            }
+            FormField("Region", caseDetails.placeOfIncident.region) {
+                caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(region = it))
             }
 
             SectionHeader("Complaint Details")
@@ -155,9 +197,14 @@ fun ComplaintFormScreen() {
             Spacer(modifier = Modifier.height(24.dp))
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                OutlinedButton(onClick = { /* Cancel */ }) {
+                OutlinedButton(onClick = {
+                    navController.navigate("landing") {
+                        popUpTo("complaint_form") { inclusive = true }
+                    }
+                }) {
                     Text("Cancel")
                 }
+
 
                 Button(onClick = {
                     val allFieldsFilled = listOf(
@@ -196,6 +243,13 @@ fun ComplaintFormScreen() {
 
                     db.collection("complaints").document(complaintId).set(complaint)
                         .addOnSuccessListener {
+                            // ✅ Clear Fields
+                            complainant = ComplainantDetails()
+                            respondent = RespondentDetails()
+                            caseDetails = CaseDetails(complaintDate = today, incidentDate = today)
+                            complaintText = TextFieldValue()
+
+                            // ✅ Show Success Dialog
                             showSuccessDialog.value = true
                         }
                         .addOnFailureListener {
@@ -211,11 +265,14 @@ fun ComplaintFormScreen() {
             // ✅ Success Dialog
             if (showSuccessDialog.value) {
                 AlertDialog(
-                    onDismissRequest = { showSuccessDialog.value = false },
+                    onDismissRequest = { },
                     confirmButton = {
                         Button(
-                            onClick = { showSuccessDialog.value = false },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF32F35A)) // Light green
+                            onClick = {
+                                showSuccessDialog.value = false
+                                navigateToLandingPage.value = true
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF32F35A))
                         ) {
                             Text("Ok")
                         }
@@ -226,7 +283,7 @@ fun ComplaintFormScreen() {
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Icon(
-                                painter = painterResource(id = R.drawable.sanpedro1), // Replace with actual logo
+                                painter = painterResource(id = R.drawable.sanpedro1),
                                 contentDescription = "Logo 1",
                                 modifier = Modifier.size(40.dp)
                             )

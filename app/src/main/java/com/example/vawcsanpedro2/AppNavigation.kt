@@ -29,7 +29,8 @@ fun AppNavigation(navController: NavHostController) {
         }
 
         composable("complaint_form") {
-            ComplaintFormScreen()
+            ComplaintFormScreen(navController = navController)
         }
+
     }
 }
