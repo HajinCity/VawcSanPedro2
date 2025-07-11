@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.vawcsanpedro2.backendmodel.*
 import com.google.firebase.firestore.FirebaseFirestore
+import com.example.vawcsanpedro2.backendmodel.EncryptionTransit.encrypt
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -231,17 +232,20 @@ fun ComplaintFormScreen(navController: NavHostController) {
                     }
 
                     val complaintId = "CF-$year-$today-${UUID.randomUUID().toString().take(4)}"
-                    val complaint = Complaint(
-                        caseId = complaintId,
-                        complainant = complainant,
-                        respondent = respondent,
+                    val encryptedComplaint = Complaint(
+                        caseId = EncryptionTransit.encrypt(complaintId),
+                        complainant = complainant.encrypt(),
+                        respondent = respondent.encrypt(),
                         caseDetails = caseDetails.copy(
                             complaintDate = today,
-                            incidentDescription = complaintText.text
-                        )
+                            incidentDate = caseDetails.incidentDate,
+                            incidentDescription = complaintText.text,
+                            placeOfIncident = caseDetails.placeOfIncident
+                        ).encrypt()
                     )
 
-                    db.collection("complaints").document(complaintId).set(complaint)
+
+                    db.collection("complaints").document(complaintId).set(encryptedComplaint)
                         .addOnSuccessListener {
                             // ✅ Clear Fields
                             complainant = ComplainantDetails()
