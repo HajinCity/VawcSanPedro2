@@ -41,7 +41,7 @@ fun LandingPage(navController: NavController) {
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onBackground
+            color = Color.Black
         )
 
         Spacer(modifier = Modifier.height(24.dp))

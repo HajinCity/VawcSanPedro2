@@ -1,4 +1,17 @@
+import java.util.Properties
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+
+val secretKey = localProperties.getProperty("ENCRYPTION_SECRET_KEY") ?: ""
+val initVector = localProperties.getProperty("ENCRYPTION_INIT_VECTOR") ?: ""
+
+
+
 plugins {
+
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
@@ -16,10 +29,14 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+
+        buildConfigField("String", "ENCRYPTION_SECRET_KEY", "\"$secretKey\"")
+        buildConfigField("String", "ENCRYPTION_INIT_VECTOR", "\"$initVector\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -27,6 +44,10 @@ android {
                 "proguard-rules.pro"
             )
         }
+    }
+    buildFeatures {
+        compose = true
+        buildConfig = true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -50,10 +71,13 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation("com.google.accompanist:accompanist-pager:0.34.0")
-    implementation("com.google.accompanist:accompanist-pager-indicators:0.34.0")
-    implementation("androidx.navigation:navigation-compose:2.7.7")
-    implementation("com.google.firebase:firebase-auth-ktx:22.3.1")
+    implementation("com.google.accompanist:accompanist-pager:0.36.0")
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.36.0")
+    implementation("androidx.navigation:navigation-compose:2.9.1")
+    implementation("com.google.firebase:firebase-auth-ktx:23.2.1")
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
+
     implementation(libs.firebase.firestore)
 
     testImplementation(libs.junit)

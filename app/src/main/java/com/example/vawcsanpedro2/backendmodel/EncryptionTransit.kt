@@ -7,18 +7,20 @@ import javax.crypto.spec.SecretKeySpec
 
 object EncryptionTransit {
 
-    private const val SECRET_KEY = "1234567890abcdef" // 16 characters for AES-128
-    private const val INIT_VECTOR = "abcdef1234567890" // 16 characters IV
+    private lateinit var SECRET_KEY: String
+    private lateinit var INIT_VECTOR: String
 
-    // Core encryption function
+    fun init(secretKey: String, initVector: String) {
+        SECRET_KEY = secretKey
+        INIT_VECTOR = initVector
+    }
+
     fun encrypt(str: String): String {
         if (str.isBlank()) return ""
         val iv = IvParameterSpec(INIT_VECTOR.toByteArray(Charsets.UTF_8))
         val keySpec = SecretKeySpec(SECRET_KEY.toByteArray(Charsets.UTF_8), "AES")
-
         val cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING")
         cipher.init(Cipher.ENCRYPT_MODE, keySpec, iv)
-
         val encrypted = cipher.doFinal(str.toByteArray(Charsets.UTF_8))
         return Base64.encodeToString(encrypted, Base64.NO_WRAP)
     }
@@ -79,7 +81,7 @@ object EncryptionTransit {
         region = encrypt(region)
     )
 
-    // Encrypt IncidentLocation (was previously PlaceOfIncident)
+    // Encrypt IncidentLocation
     fun IncidentLocation.encrypt(): IncidentLocation = this.copy(
         place = encrypt(place),
         purok = encrypt(purok),

@@ -323,37 +323,67 @@ fun FormField(label: String, value: String, onValueChange: (String) -> Unit) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(label) },
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+        label = { Text(label, color = Color.Black) },
+        textStyle = LocalTextStyle.current.copy(color = Color.Black),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
+            focusedLabelColor = Color.Black,
+            unfocusedLabelColor = Color.Black,
+            focusedBorderColor = Color.Black,
+            unfocusedBorderColor = Color.Black,
+            cursorColor = Color.Black
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
     )
 }
+
 
 @Composable
 fun DropdownField(label: String, selectedOption: String, options: List<String>, onOptionSelected: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
+
     Box(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
         OutlinedTextField(
             value = selectedOption,
             onValueChange = {},
             readOnly = true,
-            label = { Text(label) },
+            label = { Text(label, color = Color.Black) },
+            textStyle = LocalTextStyle.current.copy(color = Color.Black),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedLabelColor = Color.Black,
+                unfocusedLabelColor = Color.Black,
+                focusedBorderColor = Color.Black,
+                unfocusedBorderColor = Color.Black,
+                cursorColor = Color.Black
+            ),
             modifier = Modifier.fillMaxWidth(),
             trailingIcon = {
                 IconButton(onClick = { expanded = true }) {
-                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Dropdown")
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Dropdown", tint = Color.Black)
                 }
             }
         )
+
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { option ->
-                DropdownMenuItem(text = { Text(option) }, onClick = {
-                    onOptionSelected(option)
-                    expanded = false
-                })
+                DropdownMenuItem(
+                    text = { Text(option) },
+                    onClick = {
+                        onOptionSelected(option)
+                        expanded = false
+                    }
+                )
             }
         }
     }
 }
+
+
 
 @Composable
 fun DateField(label: String, date: String, onDateSelected: (String) -> Unit) {
@@ -362,7 +392,17 @@ fun DateField(label: String, date: String, onDateSelected: (String) -> Unit) {
         value = date,
         onValueChange = {},
         readOnly = true,
-        label = { Text(label) },
+        label = { Text(label, color = Color.Black) },
+        textStyle = LocalTextStyle.current.copy(color = Color.Black),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
+            focusedLabelColor = Color.Black,
+            unfocusedLabelColor = Color.Black,
+            focusedBorderColor = Color.Black,
+            unfocusedBorderColor = Color.Black,
+            cursorColor = Color.Black
+        ),
         trailingIcon = {
             IconButton(onClick = {
                 val calendar = Calendar.getInstance()
@@ -376,7 +416,7 @@ fun DateField(label: String, date: String, onDateSelected: (String) -> Unit) {
                     calendar.get(Calendar.DAY_OF_MONTH)
                 ).show()
             }) {
-                Icon(Icons.Default.ArrowDropDown, contentDescription = "Pick Date")
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "Pick Date", tint = Color.Black)
             }
         },
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)

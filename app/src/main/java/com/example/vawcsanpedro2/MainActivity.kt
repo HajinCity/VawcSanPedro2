@@ -1,5 +1,6 @@
 package com.example.vawcsanpedro2
 
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -20,10 +22,20 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import com.example.vawcsanpedro2.ui.theme.VawcSanPedro2Theme
 import kotlinx.coroutines.delay
+import com.example.vawcsanpedro2.BuildConfig
+import com.example.vawcsanpedro2.backendmodel.EncryptionTransit
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        EncryptionTransit.init(
+            BuildConfig.ENCRYPTION_SECRET_KEY,
+            BuildConfig.ENCRYPTION_INIT_VECTOR
+        )
+
+
+
         enableEdgeToEdge()
         setContent {
             VawcSanPedro2Theme {
@@ -72,7 +84,7 @@ fun SplashScreen() {
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onBackground
+            color = Color.Black
         )
     }
 }
