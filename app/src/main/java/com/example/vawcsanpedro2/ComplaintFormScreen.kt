@@ -9,6 +9,10 @@ import androidx.compose.material.SnackbarHost
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.rememberScaffoldState
+import com.android.volley.Request
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import com.google.gson.Gson
 import androidx.compose.material3.*
 import androidx.navigation.NavHostController
 import androidx.compose.runtime.*
@@ -23,8 +27,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.vawcsanpedro2.backendmodel.*
-import com.google.firebase.firestore.FirebaseFirestore
 import com.example.vawcsanpedro2.backendmodel.EncryptionTransit.encrypt
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -206,7 +210,6 @@ fun ComplaintFormScreen(navController: NavHostController) {
                     Text("Cancel")
                 }
 
-
                 Button(onClick = {
                     val allFieldsFilled = listOf(
                         complainant.lastName, complainant.firstName, complainant.middleName,
@@ -231,29 +234,51 @@ fun ComplaintFormScreen(navController: NavHostController) {
                         return@Button
                     }
 
-                    val complaintId = "CF-$year-$today-${UUID.randomUUID().toString().take(4)}"
-                    val encryptedComplaint = Complaint(
-                        caseId = EncryptionTransit.encrypt(complaintId),
-                        complainant = complainant.encrypt(),
-                        respondent = respondent.encrypt(),
+                    val complaintId = "CASE-${System.currentTimeMillis()}"
+
+                    val fullComplaint = Complaint(
+                        caseId = complaintId,
+                        complainant = complainant,
+                        respondent = respondent,
                         caseDetails = caseDetails.copy(
                             complaintDate = today,
                             incidentDate = caseDetails.incidentDate,
                             incidentDescription = complaintText.text,
                             placeOfIncident = caseDetails.placeOfIncident
-                        ).encrypt()
+                        )
                     )
 
+                    val encryptedComplaint = fullComplaint.encrypt() // This encrypts the entire object
+                    val jsonData = Gson().toJson(encryptedComplaint)
 
-                    db.collection("complaints").document(complaintId).set(encryptedComplaint)
-                        .addOnSuccessListener {
-                            // ✅ Clear Fields
+                    val requestQueue = Volley.newRequestQueue(context)
+                    val url = "https://vawcsanpedropagadian.cloudfunctions.net/submitComplaint"
+
+                    val request = object : StringRequest(Request.Method.POST, url,
+                        { response ->
                             complainant = ComplainantDetails()
                             respondent = RespondentDetails()
                             caseDetails = CaseDetails(complaintDate = today, incidentDate = today)
                             complaintText = TextFieldValue()
+                            showSuccessDialog.value = true
+                        },
+                        { error ->
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar("Failed to file complaint.")
+                            }
+                        }) {
+                        override fun getBody(): ByteArray = jsonData.toByteArray(Charsets.UTF_8)
+                        override fun getBodyContentType(): String = "application/json"
+                    }
 
-                            // ✅ Show Success Dialog
+                    requestQueue.add(request)
+
+                    db.collection("complaints").document(complaintId).set(encryptedComplaint)
+                        .addOnSuccessListener {
+                            complainant = ComplainantDetails()
+                            respondent = RespondentDetails()
+                            caseDetails = CaseDetails(complaintDate = today, incidentDate = today)
+                            complaintText = TextFieldValue()
                             showSuccessDialog.value = true
                         }
                         .addOnFailureListener {
@@ -266,159 +291,174 @@ fun ComplaintFormScreen(navController: NavHostController) {
                 }
             }
 
-            // ✅ Success Dialog
-            if (showSuccessDialog.value) {
-                AlertDialog(
-                    onDismissRequest = { },
-                    confirmButton = {
-                        Button(
-                            onClick = {
-                                showSuccessDialog.value = false
-                                navigateToLandingPage.value = true
+
+
+                    // ✅ Success Dialog
+                    if (showSuccessDialog.value) {
+                        AlertDialog(
+                            onDismissRequest = { },
+                            confirmButton = {
+                                Button(onClick = {
+                                    showSuccessDialog.value = false
+                                    navigateToLandingPage.value = true
+                                }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF32F35A))) {
+                                    Text("Ok")
+                                }
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF32F35A))
-                        ) {
-                            Text("Ok")
-                        }
-                    },
-                    title = {
-                        Row(
-                            horizontalArrangement = Arrangement.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.sanpedro1),
-                                contentDescription = "Logo 1",
-                                modifier = Modifier.size(40.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Icon(
-                                painter = painterResource(id = R.drawable.sanpedro2),
-                                contentDescription = "Logo 2",
-                                modifier = Modifier.size(40.dp)
-                            )
-                        }
-                    },
-                    text = {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("You have Successfully Filed a Complaint.", textAlign = TextAlign.Center)
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text("You may Proceed to Barangay San Pedro Pagadian for legal consultation.", textAlign = TextAlign.Center)
-                        }
+                            title = {
+                                Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+                                    Icon(painter = painterResource(id = R.drawable.sanpedro1), contentDescription = "Logo 1", modifier = Modifier.size(40.dp))
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Icon(painter = painterResource(id = R.drawable.sanpedro2), contentDescription = "Logo 2", modifier = Modifier.size(40.dp))
+                                }
+                            },
+                            text = {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text("You have Successfully Filed a Complaint.", textAlign = TextAlign.Center)
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text("You may Proceed to Barangay San Pedro Pagadian for legal consultation.", textAlign = TextAlign.Center)
+                                }
+                            }
+                        )
                     }
-                )
-            }
-        }
-    }
-}
-
-
-@Composable
-fun SectionHeader(title: String) {
-    Text(text = title, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, modifier = Modifier.padding(top = 16.dp, bottom = 8.dp))
-}
-
-@Composable
-fun FormField(label: String, value: String, onValueChange: (String) -> Unit) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label, color = Color.Black) },
-        textStyle = LocalTextStyle.current.copy(color = Color.Black),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = Color.Black,
-            unfocusedTextColor = Color.Black,
-            focusedLabelColor = Color.Black,
-            unfocusedLabelColor = Color.Black,
-            focusedBorderColor = Color.Black,
-            unfocusedBorderColor = Color.Black,
-            cursorColor = Color.Black
-        ),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-    )
-}
-
-
-@Composable
-fun DropdownField(label: String, selectedOption: String, options: List<String>, onOptionSelected: (String) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-        OutlinedTextField(
-            value = selectedOption,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text(label, color = Color.Black) },
-            textStyle = LocalTextStyle.current.copy(color = Color.Black),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedLabelColor = Color.Black,
-                unfocusedLabelColor = Color.Black,
-                focusedBorderColor = Color.Black,
-                unfocusedBorderColor = Color.Black,
-                cursorColor = Color.Black
-            ),
-            modifier = Modifier.fillMaxWidth(),
-            trailingIcon = {
-                IconButton(onClick = { expanded = true }) {
-                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Dropdown", tint = Color.Black)
                 }
             }
-        )
-
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            options.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(option) },
-                    onClick = {
-                        onOptionSelected(option)
-                        expanded = false
-                    }
-                )
-            }
         }
-    }
-}
 
 
 
-@Composable
-fun DateField(label: String, date: String, onDateSelected: (String) -> Unit) {
-    val context = LocalContext.current
-    OutlinedTextField(
-        value = date,
-        onValueChange = {},
-        readOnly = true,
-        label = { Text(label, color = Color.Black) },
-        textStyle = LocalTextStyle.current.copy(color = Color.Black),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = Color.Black,
-            unfocusedTextColor = Color.Black,
-            focusedLabelColor = Color.Black,
-            unfocusedLabelColor = Color.Black,
-            focusedBorderColor = Color.Black,
-            unfocusedBorderColor = Color.Black,
-            cursorColor = Color.Black
-        ),
-        trailingIcon = {
-            IconButton(onClick = {
-                val calendar = Calendar.getInstance()
-                DatePickerDialog(
-                    context,
-                    { _, year, month, day ->
-                        onDateSelected("%04d-%02d-%02d".format(year, month + 1, day))
-                    },
-                    calendar.get(Calendar.YEAR),
-                    calendar.get(Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH)
-                ).show()
-            }) {
-                Icon(Icons.Default.ArrowDropDown, contentDescription = "Pick Date", tint = Color.Black)
-            }
-        },
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
-    )
-}
+
+                    @Composable
+                    fun SectionHeader(title: String) {
+                        Text(
+                            text = title,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 16.sp,
+                            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                        )
+                    }
+
+                    @Composable
+                    fun FormField(label: String, value: String, onValueChange: (String) -> Unit) {
+                        OutlinedTextField(
+                            value = value,
+                            onValueChange = onValueChange,
+                            label = { Text(label, color = Color.Black) },
+                            textStyle = LocalTextStyle.current.copy(color = Color.Black),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = Color.Black,
+                                unfocusedTextColor = Color.Black,
+                                focusedLabelColor = Color.Black,
+                                unfocusedLabelColor = Color.Black,
+                                focusedBorderColor = Color.Black,
+                                unfocusedBorderColor = Color.Black,
+                                cursorColor = Color.Black
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                        )
+                    }
+
+
+                    @Composable
+                    fun DropdownField(
+                        label: String,
+                        selectedOption: String,
+                        options: List<String>,
+                        onOptionSelected: (String) -> Unit
+                    ) {
+                        var expanded by remember { mutableStateOf(false) }
+
+                        Box(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                            OutlinedTextField(
+                                value = selectedOption,
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text(label, color = Color.Black) },
+                                textStyle = LocalTextStyle.current.copy(color = Color.Black),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = Color.Black,
+                                    unfocusedTextColor = Color.Black,
+                                    focusedLabelColor = Color.Black,
+                                    unfocusedLabelColor = Color.Black,
+                                    focusedBorderColor = Color.Black,
+                                    unfocusedBorderColor = Color.Black,
+                                    cursorColor = Color.Black
+                                ),
+                                modifier = Modifier.fillMaxWidth(),
+                                trailingIcon = {
+                                    IconButton(onClick = { expanded = true }) {
+                                        Icon(
+                                            Icons.Default.ArrowDropDown,
+                                            contentDescription = "Dropdown",
+                                            tint = Color.Black
+                                        )
+                                    }
+                                }
+                            )
+
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }) {
+                                options.forEach { option ->
+                                    DropdownMenuItem(
+                                        text = { Text(option) },
+                                        onClick = {
+                                            onOptionSelected(option)
+                                            expanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+
+                    @Composable
+                    fun DateField(label: String, date: String, onDateSelected: (String) -> Unit) {
+                        val context = LocalContext.current
+                        OutlinedTextField(
+                            value = date,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text(label, color = Color.Black) },
+                            textStyle = LocalTextStyle.current.copy(color = Color.Black),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = Color.Black,
+                                unfocusedTextColor = Color.Black,
+                                focusedLabelColor = Color.Black,
+                                unfocusedLabelColor = Color.Black,
+                                focusedBorderColor = Color.Black,
+                                unfocusedBorderColor = Color.Black,
+                                cursorColor = Color.Black
+                            ),
+                            trailingIcon = {
+                                IconButton(onClick = {
+                                    val calendar = Calendar.getInstance()
+                                    DatePickerDialog(
+                                        context,
+                                        { _, year, month, day ->
+                                            onDateSelected(
+                                                "%04d-%02d-%02d".format(
+                                                    year,
+                                                    month + 1,
+                                                    day
+                                                )
+                                            )
+                                        },
+                                        calendar.get(Calendar.YEAR),
+                                        calendar.get(Calendar.MONTH),
+                                        calendar.get(Calendar.DAY_OF_MONTH)
+                                    ).show()
+                                }) {
+                                    Icon(
+                                        Icons.Default.ArrowDropDown,
+                                        contentDescription = "Pick Date",
+                                        tint = Color.Black
+                                    )
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                        )
+                    }

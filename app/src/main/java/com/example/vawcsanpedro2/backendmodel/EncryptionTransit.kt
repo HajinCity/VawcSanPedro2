@@ -15,7 +15,7 @@ object EncryptionTransit {
         INIT_VECTOR = initVector
     }
 
-    fun encrypt(str: String): String {
+    private fun encrypt(str: String): String {
         if (str.isBlank()) return ""
         val iv = IvParameterSpec(INIT_VECTOR.toByteArray(Charsets.UTF_8))
         val keySpec = SecretKeySpec(SECRET_KEY.toByteArray(Charsets.UTF_8), "AES")
@@ -89,5 +89,12 @@ object EncryptionTransit {
         municipality = encrypt(municipality),
         province = encrypt(province),
         region = encrypt(region)
+    )
+
+    // Encrypt full Complaint
+    fun Complaint.encrypt(): Complaint = this.copy(
+        complainant = complainant.encrypt(),
+        respondent = respondent.encrypt(),
+        caseDetails = caseDetails.encrypt()
     )
 }
