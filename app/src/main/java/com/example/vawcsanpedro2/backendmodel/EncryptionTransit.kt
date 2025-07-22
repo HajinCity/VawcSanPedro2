@@ -1,98 +1,101 @@
 package com.example.vawcsanpedro2.backendmodel
 
-import android.util.Base64
-import javax.crypto.Cipher
-import javax.crypto.spec.IvParameterSpec
-import javax.crypto.spec.SecretKeySpec
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import retrofit2.awaitResponse
 
 object EncryptionTransit {
 
-    private lateinit var SECRET_KEY: String
-    private lateinit var INIT_VECTOR: String
+    private var secretKey: String = ""
+    private var initVector: String = ""
 
     fun init(secretKey: String, initVector: String) {
-        SECRET_KEY = secretKey
-        INIT_VECTOR = initVector
+        this.secretKey = secretKey
+        this.initVector = initVector
     }
 
-    private fun encrypt(str: String): String {
-        if (str.isBlank()) return ""
-        val iv = IvParameterSpec(INIT_VECTOR.toByteArray(Charsets.UTF_8))
-        val keySpec = SecretKeySpec(SECRET_KEY.toByteArray(Charsets.UTF_8), "AES")
-        val cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING")
-        cipher.init(Cipher.ENCRYPT_MODE, keySpec, iv)
-        val encrypted = cipher.doFinal(str.toByteArray(Charsets.UTF_8))
-        return Base64.encodeToString(encrypted, Base64.NO_WRAP)
+    fun getSecretKey(): String = secretKey
+    fun getInitVector(): String = initVector
+
+    suspend fun encryptTextAsync(text: String): String {
+        if (text.isBlank()) return ""
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = EncryptionClient.api.encryptText(EncryptionRequest(text)).awaitResponse()
+                if (response.isSuccessful) {
+                    response.body()?.encrypted ?: ""
+                } else {
+                    ""
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                ""
+            }
+        }
     }
 
-    // Encrypt Complainant
-    fun ComplainantDetails.encrypt(): ComplainantDetails = this.copy(
-        lastName = encrypt(lastName),
-        firstName = encrypt(firstName),
-        middleName = encrypt(middleName),
-        sexIdentification = encrypt(sexIdentification),
-        civilStatus = encrypt(civilStatus),
-        birthdate = encrypt(birthdate),
-        age = encrypt(age),
-        religion = encrypt(religion),
-        cellNumber = encrypt(cellNumber),
-        nationality = encrypt(nationality),
-        occupation = encrypt(occupation),
+    suspend fun ComplainantDetails.encrypt(): ComplainantDetails = this.copy(
+        lastName = encryptTextAsync(lastName),
+        firstName = encryptTextAsync(firstName),
+        middleName = encryptTextAsync(middleName),
+        sexIdentification = encryptTextAsync(sexIdentification),
+        civilStatus = encryptTextAsync(civilStatus),
+        birthdate = encryptTextAsync(birthdate),
+        age = encryptTextAsync(age),
+        religion = encryptTextAsync(religion),
+        cellNumber = encryptTextAsync(cellNumber),
+        nationality = encryptTextAsync(nationality),
+        occupation = encryptTextAsync(occupation),
         address = address.encrypt()
     )
 
-    // Encrypt Respondent
-    fun RespondentDetails.encrypt(): RespondentDetails = this.copy(
-        lastName = encrypt(lastName),
-        firstName = encrypt(firstName),
-        middleName = encrypt(middleName),
-        alias = encrypt(alias),
-        sexIdentification = encrypt(sexIdentification),
-        civilStatus = encrypt(civilStatus),
-        birthdate = encrypt(birthdate),
-        age = encrypt(age),
-        religion = encrypt(religion),
-        cellNumber = encrypt(cellNumber),
-        nationality = encrypt(nationality),
-        occupation = encrypt(occupation),
-        relationshipToComplainant = encrypt(relationshipToComplainant),
+    suspend fun RespondentDetails.encrypt(): RespondentDetails = this.copy(
+        lastName = encryptTextAsync(lastName),
+        firstName = encryptTextAsync(firstName),
+        middleName = encryptTextAsync(middleName),
+        alias = encryptTextAsync(alias),
+        sexIdentification = encryptTextAsync(sexIdentification),
+        civilStatus = encryptTextAsync(civilStatus),
+        birthdate = encryptTextAsync(birthdate),
+        age = encryptTextAsync(age),
+        religion = encryptTextAsync(religion),
+        cellNumber = encryptTextAsync(cellNumber),
+        nationality = encryptTextAsync(nationality),
+        occupation = encryptTextAsync(occupation),
+        relationshipToComplainant = encryptTextAsync(relationshipToComplainant),
         address = address.encrypt()
     )
 
-    // Encrypt Case Details
-    fun CaseDetails.encrypt(): CaseDetails = this.copy(
-        caseNumber = encrypt(caseNumber),
-        complaintDate = encrypt(complaintDate),
-        vawcCase = encrypt(vawcCase),
-        subCase = encrypt(subCase),
-        caseStatus = encrypt(caseStatus),
-        referredTo = encrypt(referredTo),
-        incidentDate = encrypt(incidentDate),
-        incidentDescription = encrypt(incidentDescription),
+    suspend fun CaseDetails.encrypt(): CaseDetails = this.copy(
+        caseNumber = encryptTextAsync(caseNumber),
+        complaintDate = encryptTextAsync(complaintDate),
+        vawcCase = encryptTextAsync(vawcCase),
+        subCase = encryptTextAsync(subCase),
+        caseStatus = encryptTextAsync(caseStatus),
+        referredTo = encryptTextAsync(referredTo),
+        incidentDate = encryptTextAsync(incidentDate),
+        incidentDescription = encryptTextAsync(incidentDescription),
         placeOfIncident = placeOfIncident.encrypt()
     )
 
-    // Encrypt Address
-    fun Address.encrypt(): Address = this.copy(
-        purok = encrypt(purok),
-        barangay = encrypt(barangay),
-        municipality = encrypt(municipality),
-        province = encrypt(province),
-        region = encrypt(region)
+    suspend fun Address.encrypt(): Address = this.copy(
+        purok = encryptTextAsync(purok),
+        barangay = encryptTextAsync(barangay),
+        municipality = encryptTextAsync(municipality),
+        province = encryptTextAsync(province),
+        region = encryptTextAsync(region)
     )
 
-    // Encrypt IncidentLocation
-    fun IncidentLocation.encrypt(): IncidentLocation = this.copy(
-        place = encrypt(place),
-        purok = encrypt(purok),
-        barangay = encrypt(barangay),
-        municipality = encrypt(municipality),
-        province = encrypt(province),
-        region = encrypt(region)
+    suspend fun IncidentLocation.encrypt(): IncidentLocation = this.copy(
+        place = encryptTextAsync(place),
+        purok = encryptTextAsync(purok),
+        barangay = encryptTextAsync(barangay),
+        municipality = encryptTextAsync(municipality),
+        province = encryptTextAsync(province),
+        region = encryptTextAsync(region)
     )
 
-    // Encrypt full Complaint
-    fun Complaint.encrypt(): Complaint = this.copy(
+    suspend fun Complaint.encrypt(): Complaint = this.copy(
         complainant = complainant.encrypt(),
         respondent = respondent.encrypt(),
         caseDetails = caseDetails.encrypt()
