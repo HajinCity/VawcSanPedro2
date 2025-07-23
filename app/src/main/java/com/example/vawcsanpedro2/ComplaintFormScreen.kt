@@ -231,12 +231,11 @@ fun ComplaintFormScreen(navController: NavHostController) {
                         return@Button
                     }
 
-                    val datePrefix = "CF-$year-$today"
+                    val datePrefix = "CF-$today"
 
-// Query Firestore for existing complaints filed *today*
+// Query Firestore for complaints filed today
                     db.collection("complaints")
-                        .whereGreaterThanOrEqualTo("caseDetails.complaintDate", today)
-                        .whereLessThan("caseDetails.complaintDate", today + "z") // z to include up to the end of the day
+                        .whereEqualTo("caseDetails.complaintDate", today)
                         .get()
                         .addOnSuccessListener { querySnapshot ->
                             val nextNumber = querySnapshot.size() + 1
