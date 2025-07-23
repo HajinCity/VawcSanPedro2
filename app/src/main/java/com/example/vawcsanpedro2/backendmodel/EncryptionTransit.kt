@@ -1,6 +1,7 @@
 package com.example.vawcsanpedro2.backendmodel
 
 import android.util.Base64
+import com.example.vawcsanpedro2.BuildConfig
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
@@ -9,6 +10,12 @@ object EncryptionTransit {
 
     private lateinit var SECRET_KEY: String
     private lateinit var INIT_VECTOR: String
+
+    // Call this during app initialization
+    fun initFromBuildConfig() {
+        SECRET_KEY = BuildConfig.ENCRYPTION_SECRET_KEY
+        INIT_VECTOR = BuildConfig.ENCRYPTION_INIT_VECTOR
+    }
 
     fun init(secretKey: String, initVector: String) {
         SECRET_KEY = secretKey

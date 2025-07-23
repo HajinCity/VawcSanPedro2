@@ -231,36 +231,49 @@ fun ComplaintFormScreen(navController: NavHostController) {
                         return@Button
                     }
 
-                    val complaintId = "CF-$year-$today-${UUID.randomUUID().toString().take(4)}"
-                    val encryptedComplaint = Complaint(
-                        caseId = EncryptionTransit.encrypt(complaintId),
-                        complainant = complainant.encrypt(),
-                        respondent = respondent.encrypt(),
-                        caseDetails = caseDetails.copy(
-                            complaintDate = today,
-                            incidentDate = caseDetails.incidentDate,
-                            incidentDescription = complaintText.text,
-                            placeOfIncident = caseDetails.placeOfIncident
-                        ).encrypt()
-                    )
+                    val datePrefix = "CF-$year-$today"
 
+// Query Firestore for existing complaints filed *today*
+                    db.collection("complaints")
+                        .whereGreaterThanOrEqualTo("caseDetails.complaintDate", today)
+                        .whereLessThan("caseDetails.complaintDate", today + "z") // z to include up to the end of the day
+                        .get()
+                        .addOnSuccessListener { querySnapshot ->
+                            val nextNumber = querySnapshot.size() + 1
+                            val complaintId = "$datePrefix-%04d".format(nextNumber)
 
-                    db.collection("complaints").document(complaintId).set(encryptedComplaint)
-                        .addOnSuccessListener {
-                            // ✅ Clear Fields
-                            complainant = ComplainantDetails()
-                            respondent = RespondentDetails()
-                            caseDetails = CaseDetails(complaintDate = today, incidentDate = today)
-                            complaintText = TextFieldValue()
+                            val encryptedComplaint = Complaint(
+                                caseId = EncryptionTransit.encrypt(complaintId),
+                                complainant = complainant.encrypt(),
+                                respondent = respondent.encrypt(),
+                                caseDetails = caseDetails.copy(
+                                    complaintDate = today,
+                                    incidentDate = caseDetails.incidentDate,
+                                    incidentDescription = complaintText.text,
+                                    placeOfIncident = caseDetails.placeOfIncident
+                                ).encrypt()
+                            )
 
-                            // ✅ Show Success Dialog
-                            showSuccessDialog.value = true
+                            db.collection("complaints").document(complaintId).set(encryptedComplaint)
+                                .addOnSuccessListener {
+                                    complainant = ComplainantDetails()
+                                    respondent = RespondentDetails()
+                                    caseDetails = CaseDetails(complaintDate = today, incidentDate = today)
+                                    complaintText = TextFieldValue()
+                                    showSuccessDialog.value = true
+                                }
+                                .addOnFailureListener {
+                                    coroutineScope.launch {
+                                        scaffoldState.snackbarHostState.showSnackbar("Failed to file complaint.")
+                                    }
+                                }
                         }
                         .addOnFailureListener {
                             coroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar("Failed to file complaint.")
+                                scaffoldState.snackbarHostState.showSnackbar("Failed to generate complaint ID.")
                             }
                         }
+
                 }) {
                     Text("File Now")
                 }

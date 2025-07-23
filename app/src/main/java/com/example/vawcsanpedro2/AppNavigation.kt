@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 @Composable
 fun AppNavigation(navController: NavHostController) {
     NavHost(navController = navController, startDestination = "onboarding") {
+
         composable("onboarding") {
             OnboardingScreen(onFinish = {
                 navController.navigate("sign_in_guest") {
@@ -31,6 +32,5 @@ fun AppNavigation(navController: NavHostController) {
         composable("complaint_form") {
             ComplaintFormScreen(navController = navController)
         }
-
     }
 }
