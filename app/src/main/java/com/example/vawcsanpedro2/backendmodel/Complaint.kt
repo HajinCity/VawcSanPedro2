@@ -40,7 +40,6 @@ data class RespondentDetails(
 )
 
 data class CaseDetails(
-    val caseNumber: String = "",
     val complaintDate: String = "",
     val vawcCase: String = "",      // Optional: dropdown if you define case types
     val subCase: String = "",       // Optional

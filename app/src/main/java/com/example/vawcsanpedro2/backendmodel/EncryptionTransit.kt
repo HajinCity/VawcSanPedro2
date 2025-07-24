@@ -68,7 +68,6 @@ object EncryptionTransit {
 
     // Encrypt Case Details
     fun CaseDetails.encrypt(): CaseDetails = this.copy(
-        caseNumber = encrypt(caseNumber),
         complaintDate = encrypt(complaintDate),
         vawcCase = encrypt(vawcCase),
         subCase = encrypt(subCase),
