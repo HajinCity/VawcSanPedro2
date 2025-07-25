@@ -17,8 +17,8 @@
               </option>
               <option name="failureTypes">
                 <list>
-                  <option value="ANR" />
                   <option value="FATAL" />
+                  <option value="ANR" />
                 </list>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
