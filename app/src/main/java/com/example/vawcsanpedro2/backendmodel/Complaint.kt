@@ -40,11 +40,12 @@ data class RespondentDetails(
 )
 
 data class CaseDetails(
+    val caseNumber: String = "",
     val complaintDate: String = "",
-    val vawcCase: String = "N/A",      // Optional: dropdown if you define case types
-    val subCase: String = "N/A",       // Optional
-    val caseStatus: String = "Pending",    // Optional: e.g., “Pending”, “Referred”
-    val referredTo: String = "N/A",    // Optional
+    val vawcCase: String = "",      // Optional: dropdown if you define case types
+    val subCase: String = "",       // Optional
+    val caseStatus: String = "",    // Optional: e.g., “Pending”, “Referred”
+    val referredTo: String = "",    // Optional
     val incidentDate: String = "",
     val incidentDescription: String = "",
     val placeOfIncident: IncidentLocation = IncidentLocation()

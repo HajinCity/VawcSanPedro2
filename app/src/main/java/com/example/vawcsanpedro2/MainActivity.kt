@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import com.example.vawcsanpedro2.ui.theme.VawcSanPedro2Theme
 import kotlinx.coroutines.delay
+import com.example.vawcsanpedro2.BuildConfig
 import com.example.vawcsanpedro2.backendmodel.EncryptionTransit
 
 class MainActivity : ComponentActivity() {
@@ -31,6 +33,8 @@ class MainActivity : ComponentActivity() {
             BuildConfig.ENCRYPTION_SECRET_KEY,
             BuildConfig.ENCRYPTION_INIT_VECTOR
         )
+
+
 
         enableEdgeToEdge()
         setContent {
