@@ -16,6 +16,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.google.firebase.crashlytics)
 }
 
 android {
@@ -27,7 +28,7 @@ android {
         minSdk = 29
         targetSdk = 36
         versionCode = 1
-        versionName = "1.0"
+        versionName = "0.01.0"
 
 
         buildConfigField("String", "ENCRYPTION_SECRET_KEY", "\"$secretKey\"")
@@ -81,6 +82,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.13.1")
 
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.crashlytics)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -9,10 +9,6 @@ import androidx.compose.material.SnackbarHost
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.rememberScaffoldState
-import com.android.volley.Request
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
-import com.google.gson.Gson
 import androidx.compose.material3.*
 import androidx.navigation.NavHostController
 import androidx.compose.runtime.*
@@ -27,8 +23,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.vawcsanpedro2.backendmodel.*
-import com.example.vawcsanpedro2.backendmodel.EncryptionTransit.encrypt
 import com.google.firebase.firestore.FirebaseFirestore
+import com.example.vawcsanpedro2.backendmodel.EncryptionTransit.encrypt
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -210,109 +206,51 @@ fun ComplaintFormScreen(navController: NavHostController) {
                     Text("Cancel")
                 }
 
+
                 Button(onClick = {
-                    coroutineScope.launch {
-                        val allFieldsFilled = listOf(
-                            complainant.lastName, complainant.firstName, complainant.middleName,
-                            complainant.sexIdentification, complainant.age, complainant.birthdate,
-                            complainant.civilStatus, complainant.religion, complainant.nationality,
-                            complainant.occupation, complainant.cellNumber, complainant.address.barangay,
-                            complainant.address.purok, respondent.lastName, respondent.firstName,
-                            respondent.middleName, respondent.alias, respondent.sexIdentification,
-                            respondent.age, respondent.birthdate, respondent.civilStatus,
-                            respondent.religion, respondent.nationality, respondent.occupation,
-                            respondent.relationshipToComplainant, respondent.cellNumber,
-                            respondent.address.barangay, respondent.address.purok,
-                            caseDetails.incidentDate, caseDetails.placeOfIncident.place,
-                            caseDetails.placeOfIncident.purok, caseDetails.placeOfIncident.barangay,
-                            complaintText.text
-                        ).all { it.isNotBlank() }
+                    val allFieldsFilled = listOf(
+                        complainant.lastName, complainant.firstName, complainant.middleName,
+                        complainant.sexIdentification, complainant.age, complainant.birthdate,
+                        complainant.civilStatus, complainant.religion, complainant.nationality,
+                        complainant.occupation, complainant.cellNumber, complainant.address.barangay,
+                        complainant.address.purok, respondent.lastName, respondent.firstName,
+                        respondent.middleName, respondent.alias, respondent.sexIdentification,
+                        respondent.age, respondent.birthdate, respondent.civilStatus,
+                        respondent.religion, respondent.nationality, respondent.occupation,
+                        respondent.relationshipToComplainant, respondent.cellNumber,
+                        respondent.address.barangay, respondent.address.purok,
+                        caseDetails.incidentDate, caseDetails.placeOfIncident.place,
+                        caseDetails.placeOfIncident.purok, caseDetails.placeOfIncident.barangay,
+                        complaintText.text
+                    ).all { it.isNotBlank() }
 
-                        if (!allFieldsFilled) {
+                    if (!allFieldsFilled) {
+                        coroutineScope.launch {
                             scaffoldState.snackbarHostState.showSnackbar("Please fill in all required fields.")
-                            return@launch
                         }
+                        return@Button
+                    }
 
-                        val complaintId = "CASE-\${System.currentTimeMillis()}"
+                    val datePrefix = "CF-$today"
 
-                        try {
-                            suspend fun encryptText(text: String): String {
-                                val response = EncryptionClient.api.encryptText(EncryptionRequest(text)).execute()
-                                if (response.isSuccessful && response.body() != null) {
-                                    return response.body()!!.encrypted
-                                } else {
-                                    throw Exception("Encryption failed for text: \$text")
-                                }
-                            }
-
-                            val encryptedComplainant = complainant.copy(
-                                lastName = encryptText(complainant.lastName),
-                                firstName = encryptText(complainant.firstName),
-                                middleName = encryptText(complainant.middleName),
-                                sexIdentification = encryptText(complainant.sexIdentification),
-                                civilStatus = encryptText(complainant.civilStatus),
-                                birthdate = encryptText(complainant.birthdate),
-                                age = encryptText(complainant.age),
-                                religion = encryptText(complainant.religion),
-                                cellNumber = encryptText(complainant.cellNumber),
-                                nationality = encryptText(complainant.nationality),
-                                occupation = encryptText(complainant.occupation),
-                                address = complainant.address.copy(
-                                    purok = encryptText(complainant.address.purok),
-                                    barangay = encryptText(complainant.address.barangay),
-                                    municipality = encryptText(complainant.address.municipality),
-                                    province = encryptText(complainant.address.province),
-                                    region = encryptText(complainant.address.region)
-                                )
-                            )
-
-                            val encryptedRespondent = respondent.copy(
-                                lastName = encryptText(respondent.lastName),
-                                firstName = encryptText(respondent.firstName),
-                                middleName = encryptText(respondent.middleName),
-                                alias = encryptText(respondent.alias),
-                                sexIdentification = encryptText(respondent.sexIdentification),
-                                civilStatus = encryptText(respondent.civilStatus),
-                                birthdate = encryptText(respondent.birthdate),
-                                age = encryptText(respondent.age),
-                                religion = encryptText(respondent.religion),
-                                cellNumber = encryptText(respondent.cellNumber),
-                                nationality = encryptText(respondent.nationality),
-                                occupation = encryptText(respondent.occupation),
-                                relationshipToComplainant = encryptText(respondent.relationshipToComplainant),
-                                address = respondent.address.copy(
-                                    purok = encryptText(respondent.address.purok),
-                                    barangay = encryptText(respondent.address.barangay),
-                                    municipality = encryptText(respondent.address.municipality),
-                                    province = encryptText(respondent.address.province),
-                                    region = encryptText(respondent.address.region)
-                                )
-                            )
-
-                            val encryptedCaseDetails = caseDetails.copy(
-                                caseNumber = encryptText(complaintId),
-                                complaintDate = encryptText(today),
-                                vawcCase = encryptText(caseDetails.vawcCase),
-                                subCase = encryptText(caseDetails.subCase),
-                                caseStatus = encryptText(caseDetails.caseStatus),
-                                referredTo = encryptText(caseDetails.referredTo),
-                                incidentDate = encryptText(caseDetails.incidentDate),
-                                incidentDescription = encryptText(complaintText.text),
-                                placeOfIncident = caseDetails.placeOfIncident.copy(
-                                    place = encryptText(caseDetails.placeOfIncident.place),
-                                    purok = encryptText(caseDetails.placeOfIncident.purok),
-                                    barangay = encryptText(caseDetails.placeOfIncident.barangay),
-                                    municipality = encryptText(caseDetails.placeOfIncident.municipality),
-                                    province = encryptText(caseDetails.placeOfIncident.province),
-                                    region = encryptText(caseDetails.placeOfIncident.region)
-                                )
-                            )
+// Query Firestore for complaints filed today
+                    db.collection("complaints")
+                        .whereEqualTo("caseDetails.complaintDate", today)
+                        .get()
+                        .addOnSuccessListener { querySnapshot ->
+                            val nextNumber = querySnapshot.size() + 1
+                            val complaintId = "$datePrefix-%04d".format(nextNumber)
 
                             val encryptedComplaint = Complaint(
-                                caseId = complaintId,
-                                complainant = encryptedComplainant,
-                                respondent = encryptedRespondent,
-                                caseDetails = encryptedCaseDetails
+                                caseId = EncryptionTransit.encrypt(complaintId),
+                                complainant = complainant.encrypt(),
+                                respondent = respondent.encrypt(),
+                                caseDetails = caseDetails.copy(
+                                    complaintDate = today,
+                                    incidentDate = caseDetails.incidentDate,
+                                    incidentDescription = complaintText.text,
+                                    placeOfIncident = caseDetails.placeOfIncident
+                                ).encrypt()
                             )
 
                             db.collection("complaints").document(complaintId).set(encryptedComplaint)
@@ -328,49 +266,171 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                         scaffoldState.snackbarHostState.showSnackbar("Failed to file complaint.")
                                     }
                                 }
-
-                        } catch (e: Exception) {
-                            scaffoldState.snackbarHostState.showSnackbar("Encryption failed: \${e.localizedMessage}")
                         }
-                    }
+                        .addOnFailureListener {
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState.showSnackbar("Failed to generate complaint ID.")
+                            }
+                        }
+
                 }) {
                     Text("File Now")
                 }
+            }
 
-
-
-
-
-                // ✅ Success Dialog
-                    if (showSuccessDialog.value) {
-                        AlertDialog(
-                            onDismissRequest = { },
-                            confirmButton = {
-                                Button(onClick = {
-                                    showSuccessDialog.value = false
-                                    navigateToLandingPage.value = true
-                                }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF32F35A))) {
-                                    Text("Ok")
-                                }
+            // ✅ Success Dialog
+            if (showSuccessDialog.value) {
+                AlertDialog(
+                    onDismissRequest = { },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                showSuccessDialog.value = false
+                                navigateToLandingPage.value = true
                             },
-                            title = {
-                                Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-                                    Icon(painter = painterResource(id = R.drawable.sanpedro1), contentDescription = "Logo 1", modifier = Modifier.size(40.dp))
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Icon(painter = painterResource(id = R.drawable.sanpedro2), contentDescription = "Logo 2", modifier = Modifier.size(40.dp))
-                                }
-                            },
-                            text = {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text("You have Successfully Filed a Complaint.", textAlign = TextAlign.Center)
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Text("You may Proceed to Barangay San Pedro Pagadian for legal consultation.", textAlign = TextAlign.Center)
-                                }
-                            }
-                        )
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF32F35A))
+                        ) {
+                            Text("Ok")
+                        }
+                    },
+                    title = {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.sanpedro1),
+                                contentDescription = "Logo 1",
+                                modifier = Modifier.size(40.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Icon(
+                                painter = painterResource(id = R.drawable.sanpedro2),
+                                contentDescription = "Logo 2",
+                                modifier = Modifier.size(40.dp)
+                            )
+                        }
+                    },
+                    text = {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("You have Successfully Filed a Complaint.", textAlign = TextAlign.Center)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("You may Proceed to Barangay San Pedro Pagadian for legal consultation.", textAlign = TextAlign.Center)
+                        }
                     }
-                }
+                )
             }
         }
-
     }
+}
+
+
+@Composable
+fun SectionHeader(title: String) {
+    Text(text = title, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, modifier = Modifier.padding(top = 16.dp, bottom = 8.dp))
+}
+
+@Composable
+fun FormField(label: String, value: String, onValueChange: (String) -> Unit) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label, color = Color.Black) },
+        textStyle = LocalTextStyle.current.copy(color = Color.Black),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
+            focusedLabelColor = Color.Black,
+            unfocusedLabelColor = Color.Black,
+            focusedBorderColor = Color.Black,
+            unfocusedBorderColor = Color.Black,
+            cursorColor = Color.Black
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    )
+}
+
+
+@Composable
+fun DropdownField(label: String, selectedOption: String, options: List<String>, onOptionSelected: (String) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+        OutlinedTextField(
+            value = selectedOption,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label, color = Color.Black) },
+            textStyle = LocalTextStyle.current.copy(color = Color.Black),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedLabelColor = Color.Black,
+                unfocusedLabelColor = Color.Black,
+                focusedBorderColor = Color.Black,
+                unfocusedBorderColor = Color.Black,
+                cursorColor = Color.Black
+            ),
+            modifier = Modifier.fillMaxWidth(),
+            trailingIcon = {
+                IconButton(onClick = { expanded = true }) {
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Dropdown", tint = Color.Black)
+                }
+            }
+        )
+
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option) },
+                    onClick = {
+                        onOptionSelected(option)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+
+
+@Composable
+fun DateField(label: String, date: String, onDateSelected: (String) -> Unit) {
+    val context = LocalContext.current
+    OutlinedTextField(
+        value = date,
+        onValueChange = {},
+        readOnly = true,
+        label = { Text(label, color = Color.Black) },
+        textStyle = LocalTextStyle.current.copy(color = Color.Black),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
+            focusedLabelColor = Color.Black,
+            unfocusedLabelColor = Color.Black,
+            focusedBorderColor = Color.Black,
+            unfocusedBorderColor = Color.Black,
+            cursorColor = Color.Black
+        ),
+        trailingIcon = {
+            IconButton(onClick = {
+                val calendar = Calendar.getInstance()
+                DatePickerDialog(
+                    context,
+                    { _, year, month, day ->
+                        onDateSelected("%04d-%02d-%02d".format(year, month + 1, day))
+                    },
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+                ).show()
+            }) {
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "Pick Date", tint = Color.Black)
+            }
+        },
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+    )
+}
