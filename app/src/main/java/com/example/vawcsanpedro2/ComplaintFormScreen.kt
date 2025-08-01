@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.icons.Icons
@@ -31,13 +32,17 @@ import java.util.*
 
 @Composable
 fun ComplaintFormScreen(navController: NavHostController) {
-
     val db = FirebaseFirestore.getInstance()
-    val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    val today = dateFormatter.format(Date())
-    val year = SimpleDateFormat("yyyy", Locale.getDefault()).format(Date())
-    val context = LocalContext.current
 
+    // 🔁 Use current date and time
+    val fullDateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    val todayFull = fullDateTimeFormat.format(Date())
+
+    // 📅 Only date (for querying)
+    val dateOnlyFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val todayDateOnly = dateOnlyFormat.format(Date())
+
+    val context = LocalContext.current
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -59,24 +64,20 @@ fun ComplaintFormScreen(navController: NavHostController) {
     var complainant by remember { mutableStateOf(ComplainantDetails()) }
     var respondent by remember { mutableStateOf(RespondentDetails()) }
     var caseDetails by remember {
-        mutableStateOf(CaseDetails(complaintDate = today, incidentDate = today))
+        mutableStateOf(CaseDetails(complaintDate = todayFull, incidentDate = todayDateOnly))
     }
     var complaintText by remember { mutableStateOf(TextFieldValue()) }
     val scrollState = rememberScrollState()
-
     val showSuccessDialog = remember { mutableStateOf(false) }
-
-    // ⬇ Navigation Trigger
     val navigateToLandingPage = remember { mutableStateOf(false) }
 
     if (navigateToLandingPage.value) {
         LaunchedEffect(Unit) {
-            navController.navigate("landing") { // ✅ Correct route name
+            navController.navigate("landing") {
                 popUpTo("complaint_form") { inclusive = true }
             }
         }
     }
-
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -206,7 +207,6 @@ fun ComplaintFormScreen(navController: NavHostController) {
                     Text("Cancel")
                 }
 
-
                 Button(onClick = {
                     val allFieldsFilled = listOf(
                         complainant.lastName, complainant.firstName, complainant.middleName,
@@ -231,22 +231,20 @@ fun ComplaintFormScreen(navController: NavHostController) {
                         return@Button
                     }
 
-                    val datePrefix = "CF-$today"
-
-// Query Firestore for complaints filed today
+                    val datePrefix = "CF-$todayDateOnly"
                     db.collection("complaints")
-                        .whereEqualTo("caseDetails.complaintDate", today)
+                        .whereEqualTo("caseDetails.complaintDate", todayDateOnly)
                         .get()
                         .addOnSuccessListener { querySnapshot ->
                             val nextNumber = querySnapshot.size() + 1
                             val complaintId = "$datePrefix-%04d".format(nextNumber)
 
                             val encryptedComplaint = Complaint(
-                                caseId = EncryptionTransit.encrypt(complaintId),
+                                caseId = encrypt(complaintId),
                                 complainant = complainant.encrypt(),
                                 respondent = respondent.encrypt(),
                                 caseDetails = caseDetails.copy(
-                                    complaintDate = today,
+                                    complaintDate = todayFull, // ✅ Use full date + time
                                     incidentDate = caseDetails.incidentDate,
                                     incidentDescription = complaintText.text,
                                     placeOfIncident = caseDetails.placeOfIncident
@@ -257,7 +255,7 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                 .addOnSuccessListener {
                                     complainant = ComplainantDetails()
                                     respondent = RespondentDetails()
-                                    caseDetails = CaseDetails(complaintDate = today, incidentDate = today)
+                                    caseDetails = CaseDetails(complaintDate = todayFull, incidentDate = todayDateOnly)
                                     complaintText = TextFieldValue()
                                     showSuccessDialog.value = true
                                 }
@@ -278,7 +276,6 @@ fun ComplaintFormScreen(navController: NavHostController) {
                 }
             }
 
-            // ✅ Success Dialog
             if (showSuccessDialog.value) {
                 AlertDialog(
                     onDismissRequest = { },
