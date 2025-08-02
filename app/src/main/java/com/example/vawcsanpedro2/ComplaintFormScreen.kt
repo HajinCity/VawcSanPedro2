@@ -31,13 +31,21 @@ import java.util.*
 
 @Composable
 fun ComplaintFormScreen(navController: NavHostController) {
-
     val db = FirebaseFirestore.getInstance()
-    val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    val today = dateFormatter.format(Date())
-    val year = SimpleDateFormat("yyyy", Locale.getDefault()).format(Date())
-    val context = LocalContext.current
 
+    val manilaTimeZone = TimeZone.getTimeZone("Asia/Manila")
+    val calendar = Calendar.getInstance(manilaTimeZone)
+
+    val fullDateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    fullDateTimeFormat.timeZone = manilaTimeZone
+    val todayFull = fullDateTimeFormat.format(calendar.time)
+
+    val dateOnlyFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    dateOnlyFormat.timeZone = manilaTimeZone
+    val todayDateOnly = dateOnlyFormat.format(calendar.time)
+
+
+    val context = LocalContext.current
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -59,24 +67,20 @@ fun ComplaintFormScreen(navController: NavHostController) {
     var complainant by remember { mutableStateOf(ComplainantDetails()) }
     var respondent by remember { mutableStateOf(RespondentDetails()) }
     var caseDetails by remember {
-        mutableStateOf(CaseDetails(complaintDate = today, incidentDate = today))
+        mutableStateOf(CaseDetails(complaintDate = todayFull, incidentDate = todayDateOnly))
     }
     var complaintText by remember { mutableStateOf(TextFieldValue()) }
     val scrollState = rememberScrollState()
-
     val showSuccessDialog = remember { mutableStateOf(false) }
-
-    // ⬇ Navigation Trigger
     val navigateToLandingPage = remember { mutableStateOf(false) }
 
     if (navigateToLandingPage.value) {
         LaunchedEffect(Unit) {
-            navController.navigate("landing") { // ✅ Correct route name
+            navController.navigate("landing") {
                 popUpTo("complaint_form") { inclusive = true }
             }
         }
     }
-
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -206,7 +210,6 @@ fun ComplaintFormScreen(navController: NavHostController) {
                     Text("Cancel")
                 }
 
-
                 Button(onClick = {
                     val allFieldsFilled = listOf(
                         complainant.lastName, complainant.firstName, complainant.middleName,
@@ -231,33 +234,45 @@ fun ComplaintFormScreen(navController: NavHostController) {
                         return@Button
                     }
 
-                    val datePrefix = "CF-$today"
+                    val datePrefix = "CF-$todayDateOnly" // Today’s date e.g. CF-2025-08-02
 
-// Query Firestore for complaints filed today
+// Fetch ALL complaint IDs to get the last used global number
                     db.collection("complaints")
-                        .whereEqualTo("caseDetails.complaintDate", today)
                         .get()
                         .addOnSuccessListener { querySnapshot ->
-                            val nextNumber = querySnapshot.size() + 1
+                            val existingIds = querySnapshot.documents.mapNotNull { it.id }
+
+                            // Extract last part (suffix), convert to Int, find max
+                            val lastNumber = existingIds
+                                .mapNotNull { it.split("-").lastOrNull()?.toIntOrNull() }
+                                .maxOrNull() ?: 0
+
+                            val nextNumber = lastNumber + 1
                             val complaintId = "$datePrefix-%04d".format(nextNumber)
 
+                            val encryptedCaseDetails = caseDetails.copy(
+                                complaintDate = todayFull,
+                                incidentDate = caseDetails.incidentDate,
+                                incidentDescription = complaintText.text,
+                                placeOfIncident = caseDetails.placeOfIncident
+                            ).encrypt(excludeFields = listOf("complaintDate", "incidentDate"))
+
+
                             val encryptedComplaint = Complaint(
-                                caseId = EncryptionTransit.encrypt(complaintId),
+                                caseId = complaintId,
                                 complainant = complainant.encrypt(),
                                 respondent = respondent.encrypt(),
-                                caseDetails = caseDetails.copy(
-                                    complaintDate = today,
-                                    incidentDate = caseDetails.incidentDate,
-                                    incidentDescription = complaintText.text,
-                                    placeOfIncident = caseDetails.placeOfIncident
-                                ).encrypt()
+                                caseDetails = encryptedCaseDetails.copy(
+                                    complaintDate = todayFull // ✅ manually reassign plaintext complaintDate after encryption
+                                )
                             )
+
 
                             db.collection("complaints").document(complaintId).set(encryptedComplaint)
                                 .addOnSuccessListener {
                                     complainant = ComplainantDetails()
                                     respondent = RespondentDetails()
-                                    caseDetails = CaseDetails(complaintDate = today, incidentDate = today)
+                                    caseDetails = CaseDetails(complaintDate = todayFull, incidentDate = todayDateOnly)
                                     complaintText = TextFieldValue()
                                     showSuccessDialog.value = true
                                 }
@@ -273,12 +288,12 @@ fun ComplaintFormScreen(navController: NavHostController) {
                             }
                         }
 
+
                 }) {
                     Text("File Now")
                 }
             }
 
-            // ✅ Success Dialog
             if (showSuccessDialog.value) {
                 AlertDialog(
                     onDismissRequest = { },
