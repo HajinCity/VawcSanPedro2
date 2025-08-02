@@ -4,7 +4,6 @@ import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.icons.Icons
@@ -34,13 +33,17 @@ import java.util.*
 fun ComplaintFormScreen(navController: NavHostController) {
     val db = FirebaseFirestore.getInstance()
 
-    // 🔁 Use current date and time
-    val fullDateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-    val todayFull = fullDateTimeFormat.format(Date())
+    val manilaTimeZone = TimeZone.getTimeZone("Asia/Manila")
+    val calendar = Calendar.getInstance(manilaTimeZone)
 
-    // 📅 Only date (for querying)
+    val fullDateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    fullDateTimeFormat.timeZone = manilaTimeZone
+    val todayFull = fullDateTimeFormat.format(calendar.time)
+
     val dateOnlyFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    val todayDateOnly = dateOnlyFormat.format(Date())
+    dateOnlyFormat.timeZone = manilaTimeZone
+    val todayDateOnly = dateOnlyFormat.format(calendar.time)
+
 
     val context = LocalContext.current
     val scaffoldState = rememberScaffoldState()
@@ -231,25 +234,39 @@ fun ComplaintFormScreen(navController: NavHostController) {
                         return@Button
                     }
 
-                    val datePrefix = "CF-$todayDateOnly"
+                    val datePrefix = "CF-$todayDateOnly" // Today’s date e.g. CF-2025-08-02
+
+// Fetch ALL complaint IDs to get the last used global number
                     db.collection("complaints")
-                        .whereEqualTo("caseDetails.complaintDate", todayDateOnly)
                         .get()
                         .addOnSuccessListener { querySnapshot ->
-                            val nextNumber = querySnapshot.size() + 1
+                            val existingIds = querySnapshot.documents.mapNotNull { it.id }
+
+                            // Extract last part (suffix), convert to Int, find max
+                            val lastNumber = existingIds
+                                .mapNotNull { it.split("-").lastOrNull()?.toIntOrNull() }
+                                .maxOrNull() ?: 0
+
+                            val nextNumber = lastNumber + 1
                             val complaintId = "$datePrefix-%04d".format(nextNumber)
+
+                            val encryptedCaseDetails = caseDetails.copy(
+                                // ✅ complaintDate is stored in plaintext, not encrypted
+                                complaintDate = todayFull,
+                                incidentDate = caseDetails.incidentDate,
+                                incidentDescription = complaintText.text,
+                                placeOfIncident = caseDetails.placeOfIncident
+                            ).encrypt(excludeFields = listOf("complaintDate"))
 
                             val encryptedComplaint = Complaint(
                                 caseId = encrypt(complaintId),
                                 complainant = complainant.encrypt(),
                                 respondent = respondent.encrypt(),
-                                caseDetails = caseDetails.copy(
-                                    complaintDate = todayFull, // ✅ Use full date + time
-                                    incidentDate = caseDetails.incidentDate,
-                                    incidentDescription = complaintText.text,
-                                    placeOfIncident = caseDetails.placeOfIncident
-                                ).encrypt()
+                                caseDetails = encryptedCaseDetails.copy(
+                                    complaintDate = todayFull // ✅ manually reassign plaintext complaintDate after encryption
+                                )
                             )
+
 
                             db.collection("complaints").document(complaintId).set(encryptedComplaint)
                                 .addOnSuccessListener {
@@ -270,6 +287,7 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                 scaffoldState.snackbarHostState.showSnackbar("Failed to generate complaint ID.")
                             }
                         }
+
 
                 }) {
                     Text("File Now")

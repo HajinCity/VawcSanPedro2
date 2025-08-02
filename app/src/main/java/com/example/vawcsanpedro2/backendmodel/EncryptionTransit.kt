@@ -67,7 +67,7 @@ object EncryptionTransit {
     )
 
     // Encrypt Case Details
-    fun CaseDetails.encrypt(): CaseDetails = this.copy(
+    fun CaseDetails.encrypt(excludeFields: List<String>): CaseDetails = this.copy(
         complaintDate = encrypt(complaintDate),
         vawcCase = encrypt(vawcCase),
         subCase = encrypt(subCase),
