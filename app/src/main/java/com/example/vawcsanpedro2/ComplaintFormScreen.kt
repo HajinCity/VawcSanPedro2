@@ -257,15 +257,16 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                 placeOfIncident = caseDetails.placeOfIncident
                             ).encrypt(excludeFields = listOf("complaintDate", "incidentDate"))
 
-
                             val encryptedComplaint = Complaint(
                                 caseId = complaintId,
                                 complainant = complainant.encrypt(),
                                 respondent = respondent.encrypt(),
                                 caseDetails = encryptedCaseDetails.copy(
-                                    complaintDate = todayFull // ✅ manually reassign plaintext complaintDate after encryption
+                                    complaintDate = todayFull,
+                                    incidentDate = caseDetails.incidentDate // ✅ fixed here
                                 )
                             )
+
 
 
                             db.collection("complaints").document(complaintId).set(encryptedComplaint)
