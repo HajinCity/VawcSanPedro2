@@ -32,6 +32,8 @@ import java.util.*
 @Composable
 fun ComplaintFormScreen(navController: NavHostController) {
     val db = FirebaseFirestore.getInstance()
+    val lastSubmittedSuffix = remember { mutableStateOf("") }
+
 
     val manilaTimeZone = TimeZone.getTimeZone("Asia/Manila")
     val calendar = Calendar.getInstance(manilaTimeZone)
@@ -234,68 +236,52 @@ fun ComplaintFormScreen(navController: NavHostController) {
                         return@Button
                     }
 
-                    val datePrefix = "CF-$todayDateOnly" // Today’s date e.g. CF-2025-08-02
+                    // ✅ Declare datePrefix here
+                    val datePrefix = "CF-$todayDateOnly"
 
-// Fetch ALL complaint IDs to get the last used global number
-                    db.collection("complaints")
-                        .get()
-                        .addOnSuccessListener { querySnapshot ->
-                            val existingIds = querySnapshot.documents.mapNotNull { it.id }
+                    // Generate Firestore random ID, extract last 4 characters
+                    val randomDocId = db.collection("complaints").document().id
+                    val suffix = randomDocId.takeLast(4)
+                    val complaintId = "$datePrefix-$suffix"  // e.g. CF-2025-08-03-5z9k
 
-                            // Extract last part (suffix), convert to Int, find max
-                            val lastNumber = existingIds
-                                .mapNotNull { it.split("-").lastOrNull()?.toIntOrNull() }
-                                .maxOrNull() ?: 0
+                    val encryptedCaseDetails = caseDetails.copy(
+                        complaintDate = todayFull,
+                        incidentDate = caseDetails.incidentDate,
+                        incidentDescription = complaintText.text,
+                        placeOfIncident = caseDetails.placeOfIncident
+                    ).encrypt(excludeFields = listOf("complaintDate", "incidentDate"))
 
-                            val nextNumber = lastNumber + 1
-                            val complaintId = "$datePrefix-%04d".format(nextNumber)
+                    val encryptedComplaint = Complaint(
+                        caseId = complaintId,
+                        complainant = complainant.encrypt(),
+                        respondent = respondent.encrypt(),
+                        caseDetails = encryptedCaseDetails.copy(
+                            complaintDate = todayFull,
+                            incidentDate = caseDetails.incidentDate
+                        )
+                    )
 
-                            val encryptedCaseDetails = caseDetails.copy(
-                                complaintDate = todayFull,
-                                incidentDate = caseDetails.incidentDate,
-                                incidentDescription = complaintText.text,
-                                placeOfIncident = caseDetails.placeOfIncident
-                            ).encrypt(excludeFields = listOf("complaintDate", "incidentDate"))
-
-                            val encryptedComplaint = Complaint(
-                                caseId = complaintId,
-                                complainant = complainant.encrypt(),
-                                respondent = respondent.encrypt(),
-                                caseDetails = encryptedCaseDetails.copy(
-                                    complaintDate = todayFull,
-                                    incidentDate = caseDetails.incidentDate // ✅ fixed here
-                                )
-                            )
-
-
-
-                            db.collection("complaints").document(complaintId).set(encryptedComplaint)
-                                .addOnSuccessListener {
-                                    complainant = ComplainantDetails()
-                                    respondent = RespondentDetails()
-                                    caseDetails = CaseDetails(complaintDate = todayFull, incidentDate = todayDateOnly)
-                                    complaintText = TextFieldValue()
-                                    showSuccessDialog.value = true
-                                }
-                                .addOnFailureListener {
-                                    coroutineScope.launch {
-                                        scaffoldState.snackbarHostState.showSnackbar("Failed to file complaint.")
-                                    }
-                                }
+                    db.collection("complaints").document(complaintId).set(encryptedComplaint)
+                        .addOnSuccessListener {
+                            complainant = ComplainantDetails()
+                            respondent = RespondentDetails()
+                            caseDetails = CaseDetails(complaintDate = todayFull, incidentDate = todayDateOnly)
+                            complaintText = TextFieldValue()
+                            lastSubmittedSuffix.value = suffix // For dialog display
+                            showSuccessDialog.value = true
                         }
                         .addOnFailureListener {
                             coroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar("Failed to generate complaint ID.")
+                                scaffoldState.snackbarHostState.showSnackbar("Failed to file complaint.")
                             }
                         }
-
-
                 }) {
                     Text("File Now")
                 }
+
             }
 
-            if (showSuccessDialog.value) {
+                if (showSuccessDialog.value) {
                 AlertDialog(
                     onDismissRequest = { },
                     confirmButton = {
