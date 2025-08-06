@@ -51,7 +51,23 @@ fun ComplaintFormScreen(navController: NavHostController) {
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
 
-    val purokOptions = (1..14).map { "Purok $it" }
+    val purokOptions = listOf(
+        "Purok Adelfa",
+        "Purok Bougainvillea",
+        "Purok Campo Islam",
+        "Purok Fisherville",
+        "Purok Golden Shower",
+        "Purok Kabingaan",
+        "Purok Lacturan",
+        "Purok Masanagon 1",
+        "Purok Masanagon 2",
+        "Purok Narra",
+        "Purok Palmera",
+        "Purok Rosas",
+        "Purok Sampaguita",
+        "Purok Sunshine"
+    )
+
     val sexOptions = listOf("Male", "Female")
     val civilStatusOptions = listOf("Single", "Live-in", "Separated", "Married", "Widowed")
     val relationshipOptions = listOf(
