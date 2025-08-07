@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // VAWC Complaints Collection
+    match /complaints/{complaintId} {
+      // Allow read/write only for authenticated users
+      allow read, write: if request.auth != null;
+      
+      // Additional validation for write operations
+      allow create: if request.auth != null 
+        && request.resource.data.caseId is string
+        && request.resource.data.caseId.size() > 0
+        && request.resource.data.complainant is map
+        && request.resource.data.respondent is map
+        && request.resource.data.caseDetails is map;
+        
+      allow update: if request.auth != null 
+        && request.resource.data.caseId is string
+        && request.resource.data.caseId.size() > 0;
+        
+      allow delete: if false; // Prevent deletion of complaints
+    }
+    
+    // User sessions collection (if needed)
+    match /sessions/{sessionId} {
+      allow read, write: if request.auth != null 
+        && request.auth.uid == resource.data.userId;
+    }
+    
+    // Deny access to all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
