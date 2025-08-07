@@ -21,16 +21,31 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import com.example.vawcsanpedro2.ui.theme.VawcSanPedro2Theme
 import kotlinx.coroutines.delay
-import com.example.vawcsanpedro2.backendmodel.EncryptionTransit
+import com.example.vawcsanpedro2.backendmodel.SecurityManager
+import com.google.firebase.FirebaseApp
+import android.util.Log
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        EncryptionTransit.init(
-            BuildConfig.ENCRYPTION_SECRET_KEY,
-            BuildConfig.ENCRYPTION_INIT_VECTOR
-        )
+        // Initialize Firebase
+        try {
+            FirebaseApp.initializeApp(this)
+            Log.d("MainActivity", "Firebase initialized successfully")
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Firebase initialization failed", e)
+        }
+
+        // Initialize enhanced security manager
+        try {
+            SecurityManager.initialize(this)
+            Log.d("MainActivity", "SecurityManager initialized successfully")
+        } catch (e: Exception) {
+            // In production, you might want to handle this more gracefully
+            // For now, we'll log the error but continue
+            Log.e("MainActivity", "Security initialization failed", e)
+        }
 
         enableEdgeToEdge()
         setContent {
