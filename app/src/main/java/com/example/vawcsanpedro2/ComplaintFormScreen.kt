@@ -1,16 +1,15 @@
 package com.example.vawcsanpedro2
 
 import android.app.DatePickerDialog
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Scaffold
-import androidx.compose.material.SnackbarHost
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.*
-import androidx.navigation.NavHostController
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,18 +21,27 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.vawcsanpedro2.backendmodel.*
 import com.google.firebase.firestore.FirebaseFirestore
-import com.example.vawcsanpedro2.backendmodel.EncryptionTransit.encrypt
+import com.example.vawcsanpedro2.backendmodel.EnhancedEncryptionTransit.encryptEnhanced
+import com.example.vawcsanpedro2.backendmodel.EnhancedEncryptionTransit.validateComplainantData
+import com.example.vawcsanpedro2.backendmodel.EnhancedEncryptionTransit.validateRespondentData
+import com.example.vawcsanpedro2.backendmodel.EnhancedEncryptionTransit.validateCaseData
+import com.example.vawcsanpedro2.backendmodel.SecurityManager.generateSecureId
+import com.example.vawcsanpedro2.ui.theme.*
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import android.util.Log
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ComplaintFormScreen(navController: NavHostController) {
     val db = FirebaseFirestore.getInstance()
     val lastSubmittedSuffix = remember { mutableStateOf("") }
-
+    val showErrorDialog = remember { mutableStateOf(false) }
+    val errorMessage = remember { mutableStateOf("") }
 
     val manilaTimeZone = TimeZone.getTimeZone("Asia/Manila")
     val calendar = Calendar.getInstance(manilaTimeZone)
@@ -46,9 +54,7 @@ fun ComplaintFormScreen(navController: NavHostController) {
     dateOnlyFormat.timeZone = manilaTimeZone
     val todayDateOnly = dateOnlyFormat.format(calendar.time)
 
-
     val context = LocalContext.current
-    val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
 
     val purokOptions = listOf(
@@ -100,24 +106,36 @@ fun ComplaintFormScreen(navController: NavHostController) {
         }
     }
 
-    Scaffold(
-        scaffoldState = scaffoldState,
-        snackbarHost = { SnackbarHost(hostState = scaffoldState.snackbarHostState) }
-    ) { innerPadding ->
+    Scaffold { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
+                .background(White)
                 .padding(16.dp)
                 .verticalScroll(scrollState)
         ) {
-            Text(
-                "File Your Complaint",
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = VeryLightPink
+                ),
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Text(
+                    "File Your Complaint",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    textAlign = TextAlign.Center,
+                    color = PrimaryPink,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
             SectionHeader("Complainant Personal Information")
@@ -184,7 +202,6 @@ fun ComplaintFormScreen(navController: NavHostController) {
                 respondent = respondent.copy(address = respondent.address.copy(region = it))
             }
 
-
             SectionHeader("Complaint Information")
             DateField("Incident Date", caseDetails.incidentDate) {
                 caseDetails = caseDetails.copy(incidentDate = it)
@@ -214,90 +231,140 @@ fun ComplaintFormScreen(navController: NavHostController) {
                 value = complaintText,
                 onValueChange = { complaintText = it },
                 modifier = Modifier.fillMaxWidth().height(150.dp),
-                placeholder = { Text("Enter complaint details...") }
+                placeholder = { Text("Enter complaint details...", color = TextLight) },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = TextDark,
+                    unfocusedTextColor = TextDark,
+                    focusedLabelColor = PrimaryPink,
+                    unfocusedLabelColor = TextMedium,
+                    focusedBorderColor = PrimaryPink,
+                    unfocusedBorderColor = TextLight,
+                    cursorColor = PrimaryPink
+                )
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                OutlinedButton(onClick = {
-                    navController.navigate("landing") {
-                        popUpTo("complaint_form") { inclusive = true }
-                    }
-                }) {
-                    Text("Cancel")
+                OutlinedButton(
+                    onClick = {
+                        navController.navigate("landing") {
+                            popUpTo("complaint_form") { inclusive = true }
+                        }
+                    },
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = PrimaryPink
+                    ),
+                    border = BorderStroke(2.dp, PrimaryPink),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Cancel", fontWeight = FontWeight.Medium)
                 }
 
-                Button(onClick = {
-                    val allFieldsFilled = listOf(
-                        complainant.lastName, complainant.firstName, complainant.middleName,
-                        complainant.sexIdentification, complainant.age, complainant.birthdate,
-                        complainant.civilStatus, complainant.religion, complainant.nationality,
-                        complainant.occupation, complainant.cellNumber, complainant.address.barangay,
-                        complainant.address.purok, respondent.lastName, respondent.firstName,
-                        respondent.middleName, respondent.alias, respondent.sexIdentification,
-                        respondent.age, respondent.birthdate, respondent.civilStatus,
-                        respondent.religion, respondent.nationality, respondent.occupation,
-                        respondent.relationshipToComplainant, respondent.cellNumber,
-                        respondent.address.barangay, respondent.address.purok,
-                        caseDetails.incidentDate, caseDetails.placeOfIncident.place,
-                        caseDetails.placeOfIncident.purok, caseDetails.placeOfIncident.barangay,
-                        complaintText.text
-                    ).all { it.isNotBlank() }
-
-                    if (!allFieldsFilled) {
-                        coroutineScope.launch {
-                            scaffoldState.snackbarHostState.showSnackbar("Please fill in all required fields.")
-                        }
-                        return@Button
-                    }
-
-                    // ✅ Declare datePrefix here
-                    val datePrefix = "CF-$todayDateOnly"
-
-                    // Generate Firestore random ID, extract last 4 characters
-                    val randomDocId = db.collection("complaints").document().id
-                    val suffix = randomDocId.takeLast(4)
-                    val complaintId = "$datePrefix-$suffix"  // e.g. CF-2025-08-03-5z9k
-
-                    val encryptedCaseDetails = caseDetails.copy(
-                        complaintDate = todayFull,
-                        incidentDate = caseDetails.incidentDate,
-                        incidentDescription = complaintText.text,
-                        placeOfIncident = caseDetails.placeOfIncident
-                    ).encrypt(excludeFields = listOf("complaintDate", "incidentDate"))
-
-                    val encryptedComplaint = Complaint(
-                        caseId = complaintId,
-                        complainant = complainant.encrypt(),
-                        respondent = respondent.encrypt(),
-                        caseDetails = encryptedCaseDetails.copy(
-                            complaintDate = todayFull,
-                            incidentDate = caseDetails.incidentDate
-                        )
-                    )
-
-                    db.collection("complaints").document(complaintId).set(encryptedComplaint)
-                        .addOnSuccessListener {
-                            complainant = ComplainantDetails()
-                            respondent = RespondentDetails()
-                            caseDetails = CaseDetails(complaintDate = todayFull, incidentDate = todayDateOnly)
-                            complaintText = TextFieldValue()
-                            lastSubmittedSuffix.value = suffix // For dialog display
-                            showSuccessDialog.value = true
-                        }
-                        .addOnFailureListener {
-                            coroutineScope.launch {
-                                scaffoldState.snackbarHostState.showSnackbar("Failed to file complaint.")
+                Button(
+                    onClick = {
+                        try {
+                            Log.d("ComplaintForm", "Starting form submission...")
+                            
+                            // Enhanced validation
+                            val complainantErrors = validateComplainantData(complainant)
+                            val respondentErrors = validateRespondentData(respondent)
+                            val caseErrors = validateCaseData(caseDetails.copy(incidentDescription = complaintText.text))
+                            
+                            val allErrors = complainantErrors + respondentErrors + caseErrors
+                            
+                            if (allErrors.isNotEmpty()) {
+                                Log.e("ComplaintForm", "Validation errors: ${allErrors.joinToString(", ")}")
+                                errorMessage.value = "Validation errors: ${allErrors.joinToString(", ")}"
+                                showErrorDialog.value = true
+                                return@Button
                             }
-                        }
-                }) {
-                    Text("File Now")
-                }
 
+                            // Check if all required fields are filled
+                            val allFieldsFilled = listOf(
+                                complainant.lastName, complainant.firstName, complainant.middleName,
+                                complainant.sexIdentification, complainant.age, complainant.birthdate,
+                                complainant.civilStatus, complainant.religion, complainant.nationality,
+                                complainant.occupation, complainant.cellNumber, complainant.address.barangay,
+                                complainant.address.purok, respondent.lastName, respondent.firstName,
+                                respondent.middleName, respondent.alias, respondent.sexIdentification,
+                                respondent.age, respondent.birthdate, respondent.civilStatus,
+                                respondent.religion, respondent.nationality, respondent.occupation,
+                                respondent.relationshipToComplainant, respondent.cellNumber,
+                                respondent.address.barangay, respondent.address.purok,
+                                caseDetails.incidentDate, caseDetails.placeOfIncident.place,
+                                caseDetails.placeOfIncident.purok, caseDetails.placeOfIncident.barangay,
+                                complaintText.text
+                            ).all { it.isNotBlank() }
+
+                            if (!allFieldsFilled) {
+                                Log.e("ComplaintForm", "Not all fields are filled")
+                                errorMessage.value = "Please fill in all required fields."
+                                showErrorDialog.value = true
+                                return@Button
+                            }
+
+                            Log.d("ComplaintForm", "All validations passed, proceeding with submission...")
+
+                            // Generate secure complaint ID
+                            val datePrefix = "CF-$todayDateOnly"
+                            val secureSuffix = generateSecureId()
+                            val complaintId = "$datePrefix-$secureSuffix"
+
+                            Log.d("ComplaintForm", "Generated complaint ID: $complaintId")
+
+                            // Enhanced encryption with validation
+                            val encryptedCaseDetails = caseDetails.copy(
+                                complaintDate = todayFull,
+                                incidentDate = caseDetails.incidentDate,
+                                incidentDescription = complaintText.text,
+                                placeOfIncident = caseDetails.placeOfIncident
+                            ).encryptEnhanced()
+
+                            val encryptedComplaint = Complaint(
+                                caseId = complaintId,
+                                complainant = complainant.encryptEnhanced(),
+                                respondent = respondent.encryptEnhanced(),
+                                caseDetails = encryptedCaseDetails.copy(
+                                    complaintDate = todayFull,
+                                    incidentDate = caseDetails.incidentDate
+                                )
+                            )
+
+                            Log.d("ComplaintForm", "Encrypted complaint created, submitting to Firestore...")
+
+                            db.collection("complaints").document(complaintId).set(encryptedComplaint)
+                                .addOnSuccessListener {
+                                    Log.d("ComplaintForm", "Complaint submitted successfully!")
+                                    complainant = ComplainantDetails()
+                                    respondent = RespondentDetails()
+                                    caseDetails = CaseDetails(complaintDate = todayFull, incidentDate = todayDateOnly)
+                                    complaintText = TextFieldValue()
+                                    lastSubmittedSuffix.value = secureSuffix
+                                    showSuccessDialog.value = true
+                                }
+                                .addOnFailureListener { exception ->
+                                    Log.e("ComplaintForm", "Failed to submit complaint", exception)
+                                    errorMessage.value = "Failed to file complaint: ${exception.message}"
+                                    showErrorDialog.value = true
+                                }
+                        } catch (e: Exception) {
+                            Log.e("ComplaintForm", "Unexpected error during submission", e)
+                            errorMessage.value = "An unexpected error occurred: ${e.message}"
+                            showErrorDialog.value = true
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = PrimaryPink,
+                        contentColor = White
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("File Now", fontWeight = FontWeight.Bold)
+                }
             }
 
-                if (showSuccessDialog.value) {
+            if (showSuccessDialog.value) {
                 AlertDialog(
                     onDismissRequest = { },
                     confirmButton = {
@@ -306,7 +373,7 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                 showSuccessDialog.value = false
                                 navigateToLandingPage.value = true
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF32F35A))
+                            colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen)
                         ) {
                             Text("Ok")
                         }
@@ -338,31 +405,57 @@ fun ComplaintFormScreen(navController: NavHostController) {
                     }
                 )
             }
+
+            if (showErrorDialog.value) {
+                AlertDialog(
+                    onDismissRequest = { showErrorDialog.value = false },
+                    confirmButton = {
+                        Button(
+                            onClick = { showErrorDialog.value = false },
+                            colors = ButtonDefaults.buttonColors(containerColor = ErrorRed)
+                        ) {
+                            Text("Ok")
+                        }
+                    },
+                    title = {
+                        Text("Error", color = ErrorRed, fontWeight = FontWeight.Bold)
+                    },
+                    text = {
+                        Text(errorMessage.value, textAlign = TextAlign.Center)
+                    }
+                )
+            }
         }
     }
 }
 
-
 @Composable
 fun SectionHeader(title: String) {
-    Text(text = title, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, modifier = Modifier.padding(top = 16.dp, bottom = 8.dp))
+    Text(
+        text = title, 
+        fontWeight = FontWeight.SemiBold, 
+        fontSize = 16.sp, 
+        color = PrimaryPink,
+        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+    )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FormField(label: String, value: String, onValueChange: (String) -> Unit) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(label, color = Color.Black) },
-        textStyle = LocalTextStyle.current.copy(color = Color.Black),
+        label = { Text(label, color = TextDark) },
+        textStyle = LocalTextStyle.current.copy(color = TextDark),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = Color.Black,
-            unfocusedTextColor = Color.Black,
-            focusedLabelColor = Color.Black,
-            unfocusedLabelColor = Color.Black,
-            focusedBorderColor = Color.Black,
-            unfocusedBorderColor = Color.Black,
-            cursorColor = Color.Black
+            focusedTextColor = TextDark,
+            unfocusedTextColor = TextDark,
+            focusedLabelColor = PrimaryPink,
+            unfocusedLabelColor = TextMedium,
+            focusedBorderColor = PrimaryPink,
+            unfocusedBorderColor = TextLight,
+            cursorColor = PrimaryPink
         ),
         modifier = Modifier
             .fillMaxWidth()
@@ -370,7 +463,7 @@ fun FormField(label: String, value: String, onValueChange: (String) -> Unit) {
     )
 }
 
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropdownField(label: String, selectedOption: String, options: List<String>, onOptionSelected: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
@@ -380,21 +473,21 @@ fun DropdownField(label: String, selectedOption: String, options: List<String>, 
             value = selectedOption,
             onValueChange = {},
             readOnly = true,
-            label = { Text(label, color = Color.Black) },
-            textStyle = LocalTextStyle.current.copy(color = Color.Black),
+            label = { Text(label, color = TextDark) },
+            textStyle = LocalTextStyle.current.copy(color = TextDark),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedLabelColor = Color.Black,
-                unfocusedLabelColor = Color.Black,
-                focusedBorderColor = Color.Black,
-                unfocusedBorderColor = Color.Black,
-                cursorColor = Color.Black
+                focusedTextColor = TextDark,
+                unfocusedTextColor = TextDark,
+                focusedLabelColor = PrimaryPink,
+                unfocusedLabelColor = TextMedium,
+                focusedBorderColor = PrimaryPink,
+                unfocusedBorderColor = TextLight,
+                cursorColor = PrimaryPink
             ),
             modifier = Modifier.fillMaxWidth(),
             trailingIcon = {
                 IconButton(onClick = { expanded = true }) {
-                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Dropdown", tint = Color.Black)
+                    Icon(Icons.Filled.ArrowDropDown, contentDescription = "Dropdown", tint = PrimaryPink)
                 }
             }
         )
@@ -402,7 +495,7 @@ fun DropdownField(label: String, selectedOption: String, options: List<String>, 
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { option ->
                 DropdownMenuItem(
-                    text = { Text(option) },
+                    text = { Text(option, color = TextDark) },
                     onClick = {
                         onOptionSelected(option)
                         expanded = false
@@ -413,8 +506,7 @@ fun DropdownField(label: String, selectedOption: String, options: List<String>, 
     }
 }
 
-
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateField(label: String, date: String, onDateSelected: (String) -> Unit) {
     val context = LocalContext.current
@@ -422,16 +514,16 @@ fun DateField(label: String, date: String, onDateSelected: (String) -> Unit) {
         value = date,
         onValueChange = {},
         readOnly = true,
-        label = { Text(label, color = Color.Black) },
-        textStyle = LocalTextStyle.current.copy(color = Color.Black),
+        label = { Text(label, color = TextDark) },
+        textStyle = LocalTextStyle.current.copy(color = TextDark),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = Color.Black,
-            unfocusedTextColor = Color.Black,
-            focusedLabelColor = Color.Black,
-            unfocusedLabelColor = Color.Black,
-            focusedBorderColor = Color.Black,
-            unfocusedBorderColor = Color.Black,
-            cursorColor = Color.Black
+            focusedTextColor = TextDark,
+            unfocusedTextColor = TextDark,
+            focusedLabelColor = PrimaryPink,
+            unfocusedLabelColor = TextMedium,
+            focusedBorderColor = PrimaryPink,
+            unfocusedBorderColor = TextLight,
+            cursorColor = PrimaryPink
         ),
         trailingIcon = {
             IconButton(onClick = {
@@ -446,7 +538,7 @@ fun DateField(label: String, date: String, onDateSelected: (String) -> Unit) {
                     calendar.get(Calendar.DAY_OF_MONTH)
                 ).show()
             }) {
-                Icon(Icons.Default.ArrowDropDown, contentDescription = "Pick Date", tint = Color.Black)
+                Icon(Icons.Filled.ArrowDropDown, contentDescription = "Pick Date", tint = PrimaryPink)
             }
         },
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
