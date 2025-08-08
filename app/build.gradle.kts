@@ -5,10 +5,9 @@ if (localPropertiesFile.exists()) {
     localProperties.load(localPropertiesFile.inputStream())
 }
 
-val secretKey = localProperties.getProperty("ENCRYPTION_SECRET_KEY") ?: ""
-val initVector = localProperties.getProperty("ENCRYPTION_INIT_VECTOR") ?: ""
-
-
+// Remove the old encryption keys from local.properties
+// val secretKey = localProperties.getProperty("ENCRYPTION_SECRET_KEY") ?: ""
+// val initVector = localProperties.getProperty("ENCRYPTION_INIT_VECTOR") ?: ""
 
 plugins {
 
@@ -29,20 +28,26 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-
-        buildConfigField("String", "ENCRYPTION_SECRET_KEY", "\"$secretKey\"")
-        buildConfigField("String", "ENCRYPTION_INIT_VECTOR", "\"$initVector\"")
+        // Remove old encryption keys
+        // buildConfigField("String", "ENCRYPTION_SECRET_KEY", "\"$secretKey\"")
+        // buildConfigField("String", "ENCRYPTION_INIT_VECTOR", "\"$initVector\"")
+        
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
-
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug") // Use debug for now, create release keystore for production
+        }
+        debug {
+            isMinifyEnabled = false
+            isDebuggable = true
         }
     }
     buildFeatures {
