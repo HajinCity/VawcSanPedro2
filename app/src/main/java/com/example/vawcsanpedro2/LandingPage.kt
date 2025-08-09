@@ -18,16 +18,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.compose.foundation.isSystemInDarkTheme
 import com.example.vawcsanpedro2.ui.theme.*
 
 @Composable
-fun LandingPage(navController: NavController) {
+fun LandingPage(
+    navController: NavController
+) {
     val scrollState = rememberScrollState()
+    val isDarkTheme = isSystemInDarkTheme()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(White)
+            .background(if (isDarkTheme) DarkBackground else White)
             .verticalScroll(scrollState)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -38,7 +42,7 @@ fun LandingPage(navController: NavController) {
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = VeryLightPink
+                containerColor = if (isDarkTheme) DarkCard else VeryLightPink
             ),
             shape = RoundedCornerShape(16.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
@@ -58,7 +62,7 @@ fun LandingPage(navController: NavController) {
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = VeryLightPink
+                containerColor = if (isDarkTheme) DarkCard else VeryLightPink
             ),
             shape = RoundedCornerShape(16.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -71,7 +75,7 @@ fun LandingPage(navController: NavController) {
                     text = "Our Mission",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = PrimaryPink,
+                    color = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -81,7 +85,7 @@ fun LandingPage(navController: NavController) {
                     text = "We, The Barangay San Pedro Pagadian City are here for you. Through comprehensive support systems, legal assistance, counseling services, and public education, the VAWC platform strives to break the cycle of violence and build safer communities. It emphasizes the importance of speaking out, seeking justice, and fostering a culture of respect and equality where every woman and child can live free from fear and harm.",
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center,
-                    color = TextDark,
+                    color = if (isDarkTheme) DarkTextPrimary else TextDark,
                     lineHeight = 24.sp
                 )
             }
@@ -92,7 +96,7 @@ fun LandingPage(navController: NavController) {
             painter = painterResource(id = R.drawable.sanpedro4),
             contentDescription = "Silhouettes",
             modifier = Modifier
-                .height(80.dp)
+                .height(150.dp)
                 .fillMaxWidth()
                 .padding(vertical = 16.dp)
         )
@@ -150,7 +154,7 @@ fun LandingPage(navController: NavController) {
                 fontSize = 18.sp,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold,
-                color = TextDark
+                color = if (isDarkTheme) DarkTextPrimary else TextDark
             )
         }
 
@@ -161,7 +165,8 @@ fun LandingPage(navController: NavController) {
             iconRes = R.drawable.ra9262,
             label = "The Anti-Violence Against Women and their Children Act",
             backgroundColor = ErrorRed,
-            onClick = { navController.navigate("ra9262") }
+            onClick = { navController.navigate("ra9262") },
+            isDarkTheme = isDarkTheme
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -171,7 +176,8 @@ fun LandingPage(navController: NavController) {
             iconRes = R.drawable.ra9208,
             label = "The Expanded Anti-Trafficking in Persons Act",
             backgroundColor = InfoBlue,
-            onClick = { navController.navigate("ra9208") }
+            onClick = { navController.navigate("ra9208") },
+            isDarkTheme = isDarkTheme
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -181,7 +187,19 @@ fun LandingPage(navController: NavController) {
             iconRes = R.drawable.ra7877,
             label = "The Anti-Sexual Harassment Act",
             backgroundColor = WarningOrange,
-            onClick = { navController.navigate("ra7877") }
+            onClick = { navController.navigate("ra7877") },
+            isDarkTheme = isDarkTheme
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // RA 11210
+        IconWithLabel(
+            iconRes = R.drawable.ra11210,
+            label = "The 105-Day Expanded Maternity Leave Act",
+            backgroundColor = BrightYellow,
+            onClick = { navController.navigate("11210") },
+            isDarkTheme = isDarkTheme
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -192,7 +210,7 @@ fun LandingPage(navController: NavController) {
                 .fillMaxWidth()
                 .padding(vertical = 16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = VeryLightPink
+                containerColor = if (isDarkTheme) DarkCard else VeryLightPink
             ),
             shape = RoundedCornerShape(16.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -216,7 +234,7 @@ fun LandingPage(navController: NavController) {
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
-                    color = PrimaryPink
+                    color = if (isDarkTheme) DarkPrimaryPink else PrimaryPink
                 )
             }
         }
@@ -230,14 +248,15 @@ fun IconWithLabel(
     iconRes: Int,
     label: String,
     backgroundColor: Color,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    isDarkTheme: Boolean = false
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
         colors = CardDefaults.cardColors(
-            containerColor = VeryLightPink
+            containerColor = if (isDarkTheme) DarkCard else VeryLightPink
         ),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -270,7 +289,7 @@ fun IconWithLabel(
                 fontSize = 16.sp,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold,
-                color = TextDark,
+                color = if (isDarkTheme) DarkTextPrimary else TextDark,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp)
