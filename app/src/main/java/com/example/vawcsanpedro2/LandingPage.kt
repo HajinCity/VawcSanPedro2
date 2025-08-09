@@ -96,7 +96,7 @@ fun LandingPage(
             painter = painterResource(id = R.drawable.sanpedro4),
             contentDescription = "Silhouettes",
             modifier = Modifier
-                .height(80.dp)
+                .height(150.dp)
                 .fillMaxWidth()
                 .padding(vertical = 16.dp)
         )
@@ -188,6 +188,17 @@ fun LandingPage(
             label = "The Anti-Sexual Harassment Act",
             backgroundColor = WarningOrange,
             onClick = { navController.navigate("ra7877") },
+            isDarkTheme = isDarkTheme
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // RA 11210
+        IconWithLabel(
+            iconRes = R.drawable.ra11210,
+            label = "The 105-Day Expanded Maternity Leave Act",
+            backgroundColor = BrightYellow,
+            onClick = { navController.navigate("11210") },
             isDarkTheme = isDarkTheme
         )
 

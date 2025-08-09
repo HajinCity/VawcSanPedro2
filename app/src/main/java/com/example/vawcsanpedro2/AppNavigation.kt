@@ -46,5 +46,9 @@ fun AppNavigation(
             LandingPageRA7877(navController)
         }
 
+        composable("11210") {
+            LandingPage11210(navController)
+        }
+
     }
 }
