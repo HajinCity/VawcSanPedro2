@@ -117,9 +117,7 @@ object EnhancedEncryptionTransit {
         if (!SecurityManager.validatePhone(complainant.cellNumber)) {
             errors.add("Invalid phone number format")
         }
-        if (!SecurityManager.validateAddress(complainant.address.barangay)) {
-            errors.add("Invalid barangay address")
-        }
+        // Removed barangay validation since it's now a fixed value
         
         return errors
     }
@@ -139,9 +137,7 @@ object EnhancedEncryptionTransit {
         if (!SecurityManager.validatePhone(respondent.cellNumber)) {
             errors.add("Invalid respondent phone number format")
         }
-        if (!SecurityManager.validateAddress(respondent.address.barangay)) {
-            errors.add("Invalid respondent barangay address")
-        }
+        // Removed barangay validation since it's now a fixed value
         
         return errors
     }

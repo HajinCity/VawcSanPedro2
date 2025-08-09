@@ -7,18 +7,6 @@
    See https://developer.android.com/about/versions/12/backup-restore
 -->
 <full-backup-content>
-    <!-- Exclude all shared preferences to prevent sensitive data backup -->
-    <exclude domain="sharedpref" path="."/>
-    
-    <!-- Exclude database files -->
-    <exclude domain="database" path="."/>
-    
-    <!-- Exclude files directory -->
-    <exclude domain="file" path="."/>
-    
-    <!-- Exclude cache directory -->
-    <exclude domain="external" path="cache"/>
-    
-    <!-- Only backup app settings, not user data -->
+    <!-- Include only specific shared preferences -->
     <include domain="sharedpref" path="app_settings.xml"/>
 </full-backup-content>
