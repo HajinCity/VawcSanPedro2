@@ -18,16 +18,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.compose.foundation.isSystemInDarkTheme
 import com.example.vawcsanpedro2.ui.theme.*
-import com.example.vawcsanpedro2.ui.components.ThemeToggle
 
 @Composable
 fun LandingPage(
-    navController: NavController,
-    isDarkTheme: Boolean,
-    onThemeChange: (Boolean) -> Unit
+    navController: NavController
 ) {
     val scrollState = rememberScrollState()
+    val isDarkTheme = isSystemInDarkTheme()
 
     Column(
         modifier = Modifier
@@ -37,14 +36,6 @@ fun LandingPage(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Theme Toggle
-        ThemeToggle(
-            isDarkTheme = isDarkTheme,
-            onThemeChange = onThemeChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
-        )
         // Top Community Image
         Card(
             modifier = Modifier

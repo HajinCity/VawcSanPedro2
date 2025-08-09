@@ -7,9 +7,7 @@ import androidx.navigation.compose.composable
 
 @Composable
 fun AppNavigation(
-    navController: NavHostController,
-    isDarkTheme: Boolean,
-    onThemeChange: (Boolean) -> Unit
+    navController: NavHostController
 ) {
     NavHost(navController = navController, startDestination = "onboarding") {
 
@@ -26,7 +24,7 @@ fun AppNavigation(
         }
 
         composable("landing") {
-            LandingPage(navController, isDarkTheme, onThemeChange)
+            LandingPage(navController)
         }
 
         composable("terms") {
@@ -34,7 +32,7 @@ fun AppNavigation(
         }
 
         composable("complaint_form") {
-            ComplaintFormScreen(navController = navController, isDarkTheme = isDarkTheme)
+            ComplaintFormScreen(navController = navController)
         }
         composable("ra9262") {
             LandingPageRA9262(navController)
