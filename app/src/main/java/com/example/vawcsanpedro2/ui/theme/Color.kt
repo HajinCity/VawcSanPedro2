@@ -36,6 +36,14 @@ val DarkTextTertiary = Color(0xFF808080) // Tertiary text on dark background
 val DarkBorder = Color(0xFF404040) // Dark borders
 val DarkDivider = Color(0xFF2A2A2A) // Dark dividers
 
+// Enhanced Dark Theme Colors for Better Form Readability
+val DarkInputBackground = Color(0xFF2A2A2A) // Darker input background for better contrast
+val DarkInputBorder = Color(0xFF555555) // Lighter border for better visibility
+val DarkInputText = Color(0xFFF0F0F0) // Very light text for maximum readability
+val DarkInputPlaceholder = Color(0xFF9E9E9E) // Medium gray for placeholder text
+val DarkInputLabel = Color(0xFFE0E0E0) // Light label text
+val DarkInputFocused = Color(0xFFFF69B4) // Pink for focused state
+
 // Legacy colors for compatibility
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)

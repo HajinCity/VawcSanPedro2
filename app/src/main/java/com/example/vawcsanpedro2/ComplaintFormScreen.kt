@@ -146,49 +146,36 @@ fun ComplaintFormScreen(navController: NavHostController, isDarkTheme: Boolean) 
             FormField("Age", complainant.age, { complainant = complainant.copy(age = it) }, isDarkTheme)
             DateField("Birthdate", complainant.birthdate, { complainant = complainant.copy(birthdate = it) }, isDarkTheme)
             DropdownField("Civil Status", complainant.civilStatus, civilStatusOptions, { complainant = complainant.copy(civilStatus = it) }, isDarkTheme)
-            FormField("Religion", complainant.religion, isDarkTheme) { complainant = complainant.copy(religion = it) }
-            FormField("Nationality", complainant.nationality, isDarkTheme) { complainant = complainant.copy(nationality = it) }
-            FormField("Occupation", complainant.occupation, isDarkTheme) { complainant = complainant.copy(occupation = it) }
+            FormField("Religion", complainant.religion, { complainant = complainant.copy(religion = it) }, isDarkTheme)
+            FormField("Nationality", complainant.nationality, { complainant = complainant.copy(nationality = it) }, isDarkTheme)
+            FormField("Occupation", complainant.occupation, { complainant = complainant.copy(occupation = it) }, isDarkTheme)
 
             SectionHeader("Complainant Contact Information", isDarkTheme)
-            FormField("Contact No.", complainant.cellNumber, isDarkTheme) { complainant = complainant.copy(cellNumber = it) }
-            DropdownField("Purok", complainant.address.purok, purokOptions, isDarkTheme) {
-                complainant = complainant.copy(address = complainant.address.copy(purok = it))
-            }
+            FormField("Contact No.", complainant.cellNumber, { complainant = complainant.copy(cellNumber = it) }, isDarkTheme)
+            DropdownField("Purok", complainant.address.purok, purokOptions, { complainant = complainant.copy(address = complainant.address.copy(purok = it)) }, isDarkTheme)
 
             SectionHeader("Respondent Personal Information", isDarkTheme)
-            FormField("Last Name", respondent.lastName, isDarkTheme) { respondent = respondent.copy(lastName = it) }
-            FormField("First Name", respondent.firstName, isDarkTheme) { respondent = respondent.copy(firstName = it) }
-            FormField("Middle Name", respondent.middleName, isDarkTheme) { respondent = respondent.copy(middleName = it) }
-            FormField("Alias", respondent.alias, isDarkTheme) { respondent = respondent.copy(alias = it) }
-            DropdownField("Sex", respondent.sexIdentification, sexOptions, isDarkTheme) { respondent = respondent.copy(sexIdentification = it) }
-            FormField("Age", respondent.age, isDarkTheme) { respondent = respondent.copy(age = it) }
-            DateField("Birthdate", respondent.birthdate, isDarkTheme) { respondent = respondent.copy(birthdate = it) }
-            DropdownField("Civil Status", respondent.civilStatus, civilStatusOptions, isDarkTheme) { respondent = respondent.copy(civilStatus = it) }
-            FormField("Religion", respondent.religion, isDarkTheme) { respondent = respondent.copy(religion = it) }
-            FormField("Nationality", respondent.nationality, isDarkTheme) { respondent = respondent.copy(nationality = it) }
-            FormField("Occupation", respondent.occupation, isDarkTheme) { respondent = respondent.copy(occupation = it) }
-            DropdownField("Relationship to Complainant", respondent.relationshipToComplainant, relationshipOptions, isDarkTheme) {
-                respondent = respondent.copy(relationshipToComplainant = it)
-            }
+            FormField("Last Name", respondent.lastName, { respondent = respondent.copy(lastName = it) }, isDarkTheme)
+            FormField("First Name", respondent.firstName, { respondent = respondent.copy(firstName = it) }, isDarkTheme)
+            FormField("Middle Name", respondent.middleName, { respondent = respondent.copy(middleName = it) }, isDarkTheme)
+            FormField("Alias", respondent.alias, { respondent = respondent.copy(alias = it) }, isDarkTheme)
+            DropdownField("Sex", respondent.sexIdentification, sexOptions, { respondent = respondent.copy(sexIdentification = it) }, isDarkTheme)
+            FormField("Age", respondent.age, { respondent = respondent.copy(age = it) }, isDarkTheme)
+            DateField("Birthdate", respondent.birthdate, { respondent = respondent.copy(birthdate = it) }, isDarkTheme)
+            DropdownField("Civil Status", respondent.civilStatus, civilStatusOptions, { respondent = respondent.copy(civilStatus = it) }, isDarkTheme)
+            FormField("Religion", respondent.religion, { respondent = respondent.copy(religion = it) }, isDarkTheme)
+            FormField("Nationality", respondent.nationality, { respondent = respondent.copy(nationality = it) }, isDarkTheme)
+            FormField("Occupation", respondent.occupation, { respondent = respondent.copy(occupation = it) }, isDarkTheme)
+            DropdownField("Relationship to Complainant", respondent.relationshipToComplainant, relationshipOptions, { respondent = respondent.copy(relationshipToComplainant = it) }, isDarkTheme)
 
             SectionHeader("Respondent Contact Information", isDarkTheme)
-            FormField("Contact No.", respondent.cellNumber, isDarkTheme) { respondent = respondent.copy(cellNumber = it) }
-            DropdownField("Purok", respondent.address.purok, purokOptions, isDarkTheme) {
-                respondent = respondent.copy(address = respondent.address.copy(purok = it))
-            }
+            FormField("Contact No.", respondent.cellNumber, { respondent = respondent.copy(cellNumber = it) }, isDarkTheme)
+            DropdownField("Purok", respondent.address.purok, purokOptions, { respondent = respondent.copy(address = respondent.address.copy(purok = it)) }, isDarkTheme)
 
             SectionHeader("Complaint Information", isDarkTheme)
-            DateField("Incident Date", caseDetails.incidentDate, isDarkTheme) {
-                caseDetails = caseDetails.copy(incidentDate = it)
-            }
-            DropdownField("Place of the Incident", caseDetails.placeOfIncident.place, incidentPlaceOptions, isDarkTheme) {
-                caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(place = it))
-            }
-
-            DropdownField("Purok", caseDetails.placeOfIncident.purok, purokOptions, isDarkTheme) {
-                caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(purok = it))
-            }
+            DateField("Incident Date", caseDetails.incidentDate, { caseDetails = caseDetails.copy(incidentDate = it) }, isDarkTheme)
+            DropdownField("Place of the Incident", caseDetails.placeOfIncident.place, incidentPlaceOptions, { caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(place = it)) }, isDarkTheme)
+            DropdownField("Purok", caseDetails.placeOfIncident.purok, purokOptions, { caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(purok = it)) }, isDarkTheme)
 
             SectionHeader("Complaint Details", isDarkTheme)
             OutlinedTextField(
@@ -198,17 +185,25 @@ fun ComplaintFormScreen(navController: NavHostController, isDarkTheme: Boolean) 
                 placeholder = { 
                     Text(
                         "Enter complaint details...", 
-                        color = if (isDarkTheme) DarkTextSecondary else TextLight
+                        color = if (isDarkTheme) DarkInputPlaceholder else TextLight
                     ) 
                 },
+                textStyle = LocalTextStyle.current.copy(
+                    color = if (isDarkTheme) DarkInputText else TextDark
+                ),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = if (isDarkTheme) DarkTextPrimary else TextDark,
-                    unfocusedTextColor = if (isDarkTheme) DarkTextPrimary else TextDark,
-                    focusedLabelColor = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
-                    unfocusedLabelColor = if (isDarkTheme) DarkTextSecondary else TextMedium,
-                    focusedBorderColor = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
-                    unfocusedBorderColor = if (isDarkTheme) DarkBorder else TextLight,
-                    cursorColor = if (isDarkTheme) DarkPrimaryPink else PrimaryPink
+                    focusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                    unfocusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                    focusedLabelColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                    unfocusedLabelColor = if (isDarkTheme) DarkInputLabel else TextMedium,
+                    focusedBorderColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                    unfocusedBorderColor = if (isDarkTheme) DarkInputBorder else TextLight,
+                    cursorColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                    focusedContainerColor = if (isDarkTheme) DarkInputBackground else White,
+                    unfocusedContainerColor = if (isDarkTheme) DarkInputBackground else White,
+                    disabledContainerColor = if (isDarkTheme) DarkCard else LightGray,
+                    focusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight,
+                    unfocusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight
                 )
             )
 
@@ -443,24 +438,34 @@ fun FormField(label: String, value: String, onValueChange: (String) -> Unit, isD
         label = { 
             Text(
                 label, 
-                color = if (isDarkTheme) DarkTextPrimary else TextDark
+                color = if (isDarkTheme) DarkInputLabel else TextDark
             ) 
         },
         textStyle = LocalTextStyle.current.copy(
-            color = if (isDarkTheme) DarkTextPrimary else TextDark
+            color = if (isDarkTheme) DarkInputText else TextDark
         ),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = if (isDarkTheme) DarkTextPrimary else TextDark,
-            unfocusedTextColor = if (isDarkTheme) DarkTextPrimary else TextDark,
-            focusedLabelColor = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
-            unfocusedLabelColor = if (isDarkTheme) DarkTextSecondary else TextMedium,
-            focusedBorderColor = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
-            unfocusedBorderColor = if (isDarkTheme) DarkBorder else TextLight,
-            cursorColor = if (isDarkTheme) DarkPrimaryPink else PrimaryPink
+            focusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+            unfocusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+            focusedLabelColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+            unfocusedLabelColor = if (isDarkTheme) DarkInputLabel else TextMedium,
+            focusedBorderColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+            unfocusedBorderColor = if (isDarkTheme) DarkInputBorder else TextLight,
+            cursorColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+            focusedContainerColor = if (isDarkTheme) DarkInputBackground else White,
+            unfocusedContainerColor = if (isDarkTheme) DarkInputBackground else White,
+            disabledContainerColor = if (isDarkTheme) DarkCard else LightGray,
+            focusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight,
+            unfocusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
+            .padding(vertical = 6.dp)
+            .background(
+                if (isDarkTheme) DarkInputBackground else Color.Transparent,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .padding(horizontal = 4.dp)
     )
 }
 
@@ -469,7 +474,7 @@ fun FormField(label: String, value: String, onValueChange: (String) -> Unit, isD
 fun DropdownField(label: String, selectedOption: String, options: List<String>, onOptionSelected: (String) -> Unit, isDarkTheme: Boolean) {
     var expanded by remember { mutableStateOf(false) }
 
-    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
         OutlinedTextField(
             value = selectedOption,
             onValueChange = {},
@@ -477,28 +482,37 @@ fun DropdownField(label: String, selectedOption: String, options: List<String>, 
             label = { 
                 Text(
                     label, 
-                    color = if (isDarkTheme) DarkTextPrimary else TextDark
+                    color = if (isDarkTheme) DarkInputLabel else TextDark
                 ) 
             },
             textStyle = LocalTextStyle.current.copy(
-                color = if (isDarkTheme) DarkTextPrimary else TextDark
+                color = if (isDarkTheme) DarkInputText else TextDark
             ),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = if (isDarkTheme) DarkTextPrimary else TextDark,
-                unfocusedTextColor = if (isDarkTheme) DarkTextPrimary else TextDark,
-                focusedLabelColor = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
-                unfocusedLabelColor = if (isDarkTheme) DarkTextSecondary else TextMedium,
-                focusedBorderColor = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
-                unfocusedBorderColor = if (isDarkTheme) DarkBorder else TextLight,
-                cursorColor = if (isDarkTheme) DarkPrimaryPink else PrimaryPink
+                focusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                unfocusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                focusedLabelColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                unfocusedLabelColor = if (isDarkTheme) DarkInputLabel else TextMedium,
+                focusedBorderColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                unfocusedBorderColor = if (isDarkTheme) DarkInputBorder else TextLight,
+                cursorColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                focusedContainerColor = if (isDarkTheme) DarkInputBackground else White,
+                unfocusedContainerColor = if (isDarkTheme) DarkInputBackground else White,
+                disabledContainerColor = if (isDarkTheme) DarkCard else LightGray
             ),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    if (isDarkTheme) DarkInputBackground else Color.Transparent,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .padding(horizontal = 4.dp),
             trailingIcon = {
                 IconButton(onClick = { expanded = true }) {
                     Icon(
                         Icons.Filled.ArrowDropDown, 
                         contentDescription = "Dropdown", 
-                        tint = if (isDarkTheme) DarkPrimaryPink else PrimaryPink
+                        tint = if (isDarkTheme) DarkInputFocused else PrimaryPink
                     )
                 }
             }
@@ -508,7 +522,7 @@ fun DropdownField(label: String, selectedOption: String, options: List<String>, 
             expanded = expanded, 
             onDismissRequest = { expanded = false },
             modifier = Modifier.background(
-                if (isDarkTheme) DarkCard else VeryLightPink
+                if (isDarkTheme) DarkInputBackground else VeryLightPink
             )
         ) {
             options.forEach { option ->
@@ -516,7 +530,7 @@ fun DropdownField(label: String, selectedOption: String, options: List<String>, 
                     text = { 
                         Text(
                             option, 
-                            color = if (isDarkTheme) DarkTextPrimary else TextDark
+                            color = if (isDarkTheme) DarkInputText else TextDark
                         ) 
                     },
                     onClick = {
@@ -524,7 +538,7 @@ fun DropdownField(label: String, selectedOption: String, options: List<String>, 
                         expanded = false
                     },
                     colors = MenuDefaults.itemColors(
-                        textColor = if (isDarkTheme) DarkTextPrimary else TextDark
+                        textColor = if (isDarkTheme) DarkInputText else TextDark
                     )
                 )
             }
@@ -543,20 +557,23 @@ fun DateField(label: String, date: String, onDateSelected: (String) -> Unit, isD
         label = { 
             Text(
                 label, 
-                color = if (isDarkTheme) DarkTextPrimary else TextDark
+                color = if (isDarkTheme) DarkInputLabel else TextDark
             ) 
         },
         textStyle = LocalTextStyle.current.copy(
-            color = if (isDarkTheme) DarkTextPrimary else TextDark
+            color = if (isDarkTheme) DarkInputText else TextDark
         ),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = if (isDarkTheme) DarkTextPrimary else TextDark,
-            unfocusedTextColor = if (isDarkTheme) DarkTextPrimary else TextDark,
-            focusedLabelColor = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
-            unfocusedLabelColor = if (isDarkTheme) DarkTextSecondary else TextMedium,
-            focusedBorderColor = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
-            unfocusedBorderColor = if (isDarkTheme) DarkBorder else TextLight,
-            cursorColor = if (isDarkTheme) DarkPrimaryPink else PrimaryPink
+            focusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+            unfocusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+            focusedLabelColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+            unfocusedLabelColor = if (isDarkTheme) DarkInputLabel else TextMedium,
+            focusedBorderColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+            unfocusedBorderColor = if (isDarkTheme) DarkInputBorder else TextLight,
+            cursorColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+            focusedContainerColor = if (isDarkTheme) DarkInputBackground else White,
+            unfocusedContainerColor = if (isDarkTheme) DarkInputBackground else White,
+            disabledContainerColor = if (isDarkTheme) DarkCard else LightGray
         ),
         trailingIcon = {
             IconButton(onClick = {
@@ -574,7 +591,7 @@ fun DateField(label: String, date: String, onDateSelected: (String) -> Unit, isD
                 Icon(
                     Icons.Filled.ArrowDropDown, 
                     contentDescription = "Pick Date", 
-                    tint = if (isDarkTheme) DarkPrimaryPink else PrimaryPink
+                    tint = if (isDarkTheme) DarkInputFocused else PrimaryPink
                 )
             }
         },
