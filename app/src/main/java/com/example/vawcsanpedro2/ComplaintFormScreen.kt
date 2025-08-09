@@ -142,38 +142,38 @@ fun ComplaintFormScreen(navController: NavHostController, isDarkTheme: Boolean) 
             FormField("Last Name", complainant.lastName, { complainant = complainant.copy(lastName = it) }, isDarkTheme)
             FormField("First Name", complainant.firstName, { complainant = complainant.copy(firstName = it) }, isDarkTheme)
             FormField("Middle Name", complainant.middleName, { complainant = complainant.copy(middleName = it) }, isDarkTheme)
-            DropdownField("Sex", complainant.sexIdentification, sexOptions, isDarkTheme) { complainant = complainant.copy(sexIdentification = it) }
+            DropdownField("Sex", complainant.sexIdentification, sexOptions, { complainant = complainant.copy(sexIdentification = it) }, isDarkTheme)
             FormField("Age", complainant.age, { complainant = complainant.copy(age = it) }, isDarkTheme)
             DateField("Birthdate", complainant.birthdate, { complainant = complainant.copy(birthdate = it) }, isDarkTheme)
-            DropdownField("Civil Status", complainant.civilStatus, civilStatusOptions, isDarkTheme) { complainant = complainant.copy(civilStatus = it) }
-            FormField("Religion", complainant.religion, { complainant = complainant.copy(religion = it) }, isDarkTheme)
-            FormField("Nationality", complainant.nationality, { complainant = complainant.copy(nationality = it) }, isDarkTheme)
-            FormField("Occupation", complainant.occupation, { complainant = complainant.copy(occupation = it) }, isDarkTheme)
+            DropdownField("Civil Status", complainant.civilStatus, civilStatusOptions, { complainant = complainant.copy(civilStatus = it) }, isDarkTheme)
+            FormField("Religion", complainant.religion, isDarkTheme) { complainant = complainant.copy(religion = it) }
+            FormField("Nationality", complainant.nationality, isDarkTheme) { complainant = complainant.copy(nationality = it) }
+            FormField("Occupation", complainant.occupation, isDarkTheme) { complainant = complainant.copy(occupation = it) }
 
             SectionHeader("Complainant Contact Information", isDarkTheme)
-            FormField("Contact No.", complainant.cellNumber, { complainant = complainant.copy(cellNumber = it) }, isDarkTheme)
+            FormField("Contact No.", complainant.cellNumber, isDarkTheme) { complainant = complainant.copy(cellNumber = it) }
             DropdownField("Purok", complainant.address.purok, purokOptions, isDarkTheme) {
                 complainant = complainant.copy(address = complainant.address.copy(purok = it))
             }
 
             SectionHeader("Respondent Personal Information", isDarkTheme)
-            FormField("Last Name", respondent.lastName, { respondent = respondent.copy(lastName = it) }, isDarkTheme)
-            FormField("First Name", respondent.firstName, { respondent = respondent.copy(firstName = it) }, isDarkTheme)
-            FormField("Middle Name", respondent.middleName, { respondent = respondent.copy(middleName = it) }, isDarkTheme)
-            FormField("Alias", respondent.alias, { respondent = respondent.copy(alias = it) }, isDarkTheme)
+            FormField("Last Name", respondent.lastName, isDarkTheme) { respondent = respondent.copy(lastName = it) }
+            FormField("First Name", respondent.firstName, isDarkTheme) { respondent = respondent.copy(firstName = it) }
+            FormField("Middle Name", respondent.middleName, isDarkTheme) { respondent = respondent.copy(middleName = it) }
+            FormField("Alias", respondent.alias, isDarkTheme) { respondent = respondent.copy(alias = it) }
             DropdownField("Sex", respondent.sexIdentification, sexOptions, isDarkTheme) { respondent = respondent.copy(sexIdentification = it) }
-            FormField("Age", respondent.age, { respondent = respondent.copy(age = it) }, isDarkTheme)
-            DateField("Birthdate", respondent.birthdate, { respondent = respondent.copy(birthdate = it) }, isDarkTheme)
+            FormField("Age", respondent.age, isDarkTheme) { respondent = respondent.copy(age = it) }
+            DateField("Birthdate", respondent.birthdate, isDarkTheme) { respondent = respondent.copy(birthdate = it) }
             DropdownField("Civil Status", respondent.civilStatus, civilStatusOptions, isDarkTheme) { respondent = respondent.copy(civilStatus = it) }
-            FormField("Religion", respondent.religion, { respondent = respondent.copy(religion = it) }, isDarkTheme)
-            FormField("Nationality", respondent.nationality, { respondent = respondent.copy(nationality = it) }, isDarkTheme)
-            FormField("Occupation", respondent.occupation, { respondent = respondent.copy(occupation = it) }, isDarkTheme)
+            FormField("Religion", respondent.religion, isDarkTheme) { respondent = respondent.copy(religion = it) }
+            FormField("Nationality", respondent.nationality, isDarkTheme) { respondent = respondent.copy(nationality = it) }
+            FormField("Occupation", respondent.occupation, isDarkTheme) { respondent = respondent.copy(occupation = it) }
             DropdownField("Relationship to Complainant", respondent.relationshipToComplainant, relationshipOptions, isDarkTheme) {
                 respondent = respondent.copy(relationshipToComplainant = it)
             }
 
             SectionHeader("Respondent Contact Information", isDarkTheme)
-            FormField("Contact No.", respondent.cellNumber, { respondent = respondent.copy(cellNumber = it) }, isDarkTheme)
+            FormField("Contact No.", respondent.cellNumber, isDarkTheme) { respondent = respondent.copy(cellNumber = it) }
             DropdownField("Purok", respondent.address.purok, purokOptions, isDarkTheme) {
                 respondent = respondent.copy(address = respondent.address.copy(purok = it))
             }
