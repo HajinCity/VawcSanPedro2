@@ -34,10 +34,12 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import android.util.Log
+import androidx.compose.foundation.isSystemInDarkTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ComplaintFormScreen(navController: NavHostController, isDarkTheme: Boolean) {
+fun ComplaintFormScreen(navController: NavHostController) {
+    val isDarkTheme = isSystemInDarkTheme()
     val db = FirebaseFirestore.getInstance()
     val lastSubmittedSuffix = remember { mutableStateOf("") }
     val showErrorDialog = remember { mutableStateOf(false) }

@@ -18,16 +18,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.compose.foundation.isSystemInDarkTheme
 import com.example.vawcsanpedro2.ui.theme.*
-import com.example.vawcsanpedro2.ui.components.ThemeToggle
 
 @Composable
 fun LandingPage(
-    navController: NavController,
-    isDarkTheme: Boolean,
-    onThemeChange: (Boolean) -> Unit
+    navController: NavController
 ) {
     val scrollState = rememberScrollState()
+    val isDarkTheme = isSystemInDarkTheme()
 
     Column(
         modifier = Modifier
@@ -37,14 +36,6 @@ fun LandingPage(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Theme Toggle
-        ThemeToggle(
-            isDarkTheme = isDarkTheme,
-            onThemeChange = onThemeChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
-        )
         // Top Community Image
         Card(
             modifier = Modifier
@@ -105,7 +96,7 @@ fun LandingPage(
             painter = painterResource(id = R.drawable.sanpedro4),
             contentDescription = "Silhouettes",
             modifier = Modifier
-                .height(80.dp)
+                .height(150.dp)
                 .fillMaxWidth()
                 .padding(vertical = 16.dp)
         )
@@ -197,6 +188,17 @@ fun LandingPage(
             label = "The Anti-Sexual Harassment Act",
             backgroundColor = WarningOrange,
             onClick = { navController.navigate("ra7877") },
+            isDarkTheme = isDarkTheme
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // RA 11210
+        IconWithLabel(
+            iconRes = R.drawable.ra11210,
+            label = "The 105-Day Expanded Maternity Leave Act",
+            backgroundColor = BrightYellow,
+            onClick = { navController.navigate("11210") },
             isDarkTheme = isDarkTheme
         )
 

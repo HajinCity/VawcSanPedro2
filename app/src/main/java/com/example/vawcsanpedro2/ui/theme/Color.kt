@@ -24,6 +24,9 @@ val SuccessGreen = Color(0xFF4CAF50) // Success Green
 val WarningOrange = Color(0xFFFF9800) // Warning Orange
 val ErrorRed = Color(0xFFE53935) // Error Red
 val InfoBlue = Color(0xFF2196F3) // Info Blue
+val BrightYellow = Color(0xFFFFEA00) // Yellow Pearl
+val Purple = Color(0xFF9C27B0) // Purple
+
 
 // Dark Theme Colors
 val DarkBackground = Color(0xFF121212) // Dark background

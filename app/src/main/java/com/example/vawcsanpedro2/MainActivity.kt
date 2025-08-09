@@ -59,7 +59,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
     var showSplash by remember { mutableStateOf(true) }
-    var isDarkTheme by remember { mutableStateOf(false) }
     val navController = rememberNavController()
 
     LaunchedEffect(Unit) {
@@ -70,8 +69,8 @@ fun MainScreen() {
     if (showSplash) {
         SplashScreen()
     } else {
-        VawcSanPedro2Theme(darkTheme = isDarkTheme) {
-            AppNavigation(navController = navController, isDarkTheme = isDarkTheme, onThemeChange = { isDarkTheme = it })
+        VawcSanPedro2Theme {
+            AppNavigation(navController = navController)
         }
     }
 }
