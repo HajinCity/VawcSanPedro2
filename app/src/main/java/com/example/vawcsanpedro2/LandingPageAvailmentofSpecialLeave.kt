@@ -35,7 +35,8 @@ fun LandingPageAvailmentofSpecialLeave(
                     Text(
                         "Availment of Special Leave Benefits",
                         color = White,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
                     )
                 },
                 navigationIcon = {
