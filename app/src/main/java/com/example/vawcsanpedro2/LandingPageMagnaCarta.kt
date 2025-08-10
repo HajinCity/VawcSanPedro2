@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.compose.foundation.isSystemInDarkTheme
 import com.example.vawcsanpedro2.ui.theme.*
+import com.example.vawcsanpedro2.ui.components.ContentSection
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -206,5 +207,7 @@ fun LandingPageMagnaCarta(
         }
     }
 }
+
+
 
 
