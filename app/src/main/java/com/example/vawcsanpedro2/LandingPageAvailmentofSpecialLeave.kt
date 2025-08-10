@@ -243,7 +243,7 @@ private fun SpecialLeaveContentSection(
             Text(
                 text = content,
                 fontSize = 16.sp,
-                textAlign = TextAlign.Start,
+                textAlign = TextAlign.Justify,
                 color = if (isDarkTheme) DarkTextPrimary else TextDark,
                 lineHeight = 24.sp
             )

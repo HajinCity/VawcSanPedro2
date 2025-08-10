@@ -219,7 +219,7 @@ fun LandingPage(
         IconWithLabel(
             iconRes = R.drawable.magnacarta,
             label = "Magna Carta of Women",
-            backgroundColor = PrimaryPink,
+            backgroundColor = Purple,
             onClick = { navController.navigate("magnaCarta") },
             isDarkTheme = isDarkTheme
         )

@@ -4,6 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.vawcsanpedro2.LandingPageRA11313
+import com.example.vawcsanpedro2.LandingPageMagnaCarta
+import com.example.vawcsanpedro2.LandingPageAvailmentofSpecialLeave
 
 @Composable
 fun AppNavigation(
@@ -48,6 +51,18 @@ fun AppNavigation(
 
         composable("11210") {
             LandingPage11210(navController)
+        }
+
+        composable("ra11313") {
+            LandingPageRA11313(navController)
+        }
+
+        composable("magnaCarta") {
+            LandingPageMagnaCarta(navController)
+        }
+
+        composable("availmentSpecialLeave") {
+            LandingPageAvailmentofSpecialLeave(navController)
         }
 
     }
