@@ -69,7 +69,9 @@ fun MainScreen() {
     if (showSplash) {
         SplashScreen()
     } else {
-        AppNavigation(navController = navController) // ✅ Navigation happens after splash
+        VawcSanPedro2Theme {
+            AppNavigation(navController = navController)
+        }
     }
 }
 

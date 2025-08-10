@@ -6,7 +6,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 
 @Composable
-fun AppNavigation(navController: NavHostController) {
+fun AppNavigation(
+    navController: NavHostController
+) {
     NavHost(navController = navController, startDestination = "onboarding") {
 
         composable("onboarding") {
@@ -42,6 +44,10 @@ fun AppNavigation(navController: NavHostController) {
 
         composable("ra7877") {
             LandingPageRA7877(navController)
+        }
+
+        composable("11210") {
+            LandingPage11210(navController)
         }
 
     }
