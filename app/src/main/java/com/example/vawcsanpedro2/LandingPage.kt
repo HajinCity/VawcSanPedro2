@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.compose.foundation.isSystemInDarkTheme
 import com.example.vawcsanpedro2.ui.theme.*
+import com.example.vawcsanpedro2.ui.components.*
 
 @Composable
 fun LandingPage(
@@ -37,15 +38,10 @@ fun LandingPage(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Top Community Image
-        Card(
+        EnhancedCard(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = if (isDarkTheme) DarkCard else VeryLightPink
-            ),
-            shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                .padding(bottom = 24.dp)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.sanpedro8),
@@ -57,39 +53,12 @@ fun LandingPage(
         }
 
         // Mission Statement Card
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = if (isDarkTheme) DarkCard else VeryLightPink
-            ),
-            shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Our Mission",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp)
-                )
-                Text(
-                    text = "We, The Barangay San Pedro Pagadian City are here for you. Through comprehensive support systems, legal assistance, counseling services, and public education, the VAWC platform strives to break the cycle of violence and build safer communities. It emphasizes the importance of speaking out, seeking justice, and fostering a culture of respect and equality where every woman and child can live free from fear and harm.",
-                    fontSize = 16.sp,
-                    textAlign = TextAlign.Center,
-                    color = if (isDarkTheme) DarkTextPrimary else TextDark,
-                    lineHeight = 24.sp
-                )
-            }
-        }
+        ContentSection(
+            title = "Our Mission",
+            content = "We, The Barangay San Pedro Pagadian City are here for you. Through comprehensive support systems, legal assistance, counseling services, and public education, the VAWC platform strives to break the cycle of violence and build safer communities. It emphasizes the importance of speaking out, seeking justice, and fostering a culture of respect and equality where every woman and child can live free from fear and harm.",
+            isDarkTheme = isDarkTheme,
+            modifier = Modifier.padding(bottom = 24.dp)
+        )
 
         // Silhouettes Illustration
         Image(
@@ -98,40 +67,45 @@ fun LandingPage(
             modifier = Modifier
                 .height(150.dp)
                 .fillMaxWidth()
-                .padding(vertical = 16.dp)
+                .padding(vertical = 24.dp)
         )
 
-        // File a Complaint Button - Made Bigger
-        Button(
+        // File a Complaint Button - Enhanced with new component
+        PrimaryButton(
+            text = "File a Complaint",
             onClick = { navController.navigate("terms") },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = PrimaryPink,
-                contentColor = White
-            ),
-            shape = RoundedCornerShape(20.dp),
+            icon = null,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(80.dp)
-                .padding(vertical = 20.dp)
+                .padding(vertical = 24.dp)
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.vawc3),
-                contentDescription = "File Icon",
-                tint = White,
-                modifier = Modifier.size(32.dp)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Text("File a Complaint", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.vawc3),
+                    contentDescription = "File Icon",
+                    modifier = Modifier.size(32.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    "File a Complaint", 
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(40.dp))
 
-        // Section: FAQ - Removed Card, Made Simple Header
+        // Section: FAQ - Enhanced Design
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp)
+                .padding(vertical = 24.dp)
         ) {
             Surface(
                 color = InfoBlue,
@@ -147,18 +121,18 @@ fun LandingPage(
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = "Frequently Asked Questions",
-                fontSize = 18.sp,
+                style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold,
                 color = if (isDarkTheme) DarkTextPrimary else TextDark
             )
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(40.dp))
 
         // RA 9262
         IconWithLabel(
@@ -246,21 +220,16 @@ fun LandingPage(
             isDarkTheme = isDarkTheme
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(40.dp))
 
-        // Woman and Flowers Illustration
-        Card(
+        // Woman and Flowers Illustration - Enhanced Card
+        EnhancedCard(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = if (isDarkTheme) DarkCard else VeryLightPink
-            ),
-            shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                .padding(vertical = 24.dp)
         ) {
             Column(
-                modifier = Modifier.padding(20.dp),
+                modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
@@ -271,19 +240,19 @@ fun LandingPage(
                         .fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
                     text = "Everyone Deserves Kindness,\nCare, and Compassion",
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
+                    style = MaterialTheme.typography.headlineSmall,
                     color = if (isDarkTheme) DarkPrimaryPink else PrimaryPink
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
@@ -295,19 +264,13 @@ fun IconWithLabel(
     onClick: () -> Unit,
     isDarkTheme: Boolean = false
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = if (isDarkTheme) DarkCard else VeryLightPink
-        ),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    EnhancedCard(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(24.dp)
+            modifier = Modifier.padding(28.dp)
         ) {
             // Make the icon surface clickable
             Surface(
@@ -326,13 +289,13 @@ fun IconWithLabel(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Text(
                 text = label,
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.SemiBold,
                 color = if (isDarkTheme) DarkTextPrimary else TextDark,
                 modifier = Modifier
                     .fillMaxWidth()
