@@ -204,6 +204,17 @@ fun LandingPage(
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        // RA 11313
+        IconWithLabel(
+            iconRes = R.drawable.ra11313,
+            label = "Republic Act No. 11313: Safe Spaces Act (Bawal Bastos Law)",
+            backgroundColor = LightPurple,
+            onClick = { navController.navigate("ra11313") },
+            isDarkTheme = isDarkTheme
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
         // Woman and Flowers Illustration
         Card(
             modifier = Modifier
