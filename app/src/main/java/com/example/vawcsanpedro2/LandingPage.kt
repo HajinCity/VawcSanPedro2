@@ -215,6 +215,17 @@ fun LandingPage(
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        // Magna Carta of Women
+        IconWithLabel(
+            iconRes = R.drawable.magnacarta,
+            label = "Magna Carta of Women",
+            backgroundColor = PrimaryPink,
+            onClick = { navController.navigate("magnaCarta") },
+            isDarkTheme = isDarkTheme
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
         // Woman and Flowers Illustration
         Card(
             modifier = Modifier
