@@ -146,9 +146,9 @@ fun LandingPage(
                         .fillMaxSize()
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             Text(
                 text = "Frequently Asked Questions",
                 fontSize = 18.sp,
