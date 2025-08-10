@@ -11,7 +11,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,7 +36,7 @@ fun TermsAndConditionsScreen(navController: NavController) {
             text = "Terms & Conditions",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(vertical = 16.dp)
@@ -59,7 +58,8 @@ fun TermsAndConditionsScreen(navController: NavController) {
                             "and child can live free from fear and harm.\n"
                 }.joinToString("\n"),
                 fontSize = 14.sp,
-                lineHeight = 20.sp
+                lineHeight = 20.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -77,7 +77,8 @@ fun TermsAndConditionsScreen(navController: NavController) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "I have read and accept the Terms & Conditions",
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -91,10 +92,10 @@ fun TermsAndConditionsScreen(navController: NavController) {
                 },
                 enabled = isChecked,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFFB6C1),
-                    contentColor = Color.Black,
-                    disabledContainerColor = Color.LightGray,
-                    disabledContentColor = Color.Gray
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
