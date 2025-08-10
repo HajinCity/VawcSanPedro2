@@ -59,7 +59,7 @@ fun LandingPageUseOfMaidenName(navController: NavController) {
             
             Text(
                 text = "Use of Maiden Name",
-                style = MaterialTheme.typography.headlineMedium,
+                fontSize = 18.sp,
                 color = Color.White,
                 modifier = Modifier.align(Alignment.Center),
                 fontWeight = FontWeight.Bold

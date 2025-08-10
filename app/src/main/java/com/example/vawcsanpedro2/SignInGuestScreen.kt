@@ -7,7 +7,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -36,16 +35,31 @@ fun SignInGuestScreen(navController: NavController) {
         )
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Welcome to", fontSize = 20.sp, fontWeight = FontWeight.Normal)
-            Text("Barangay San Pedro", fontSize = 22.sp, fontWeight = FontWeight.Bold)
+            Text(
+                "Welcome to", 
+                fontSize = 20.sp, 
+                fontWeight = FontWeight.Normal,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Text(
+                "Barangay San Pedro", 
+                fontSize = 22.sp, 
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
             Spacer(modifier = Modifier.height(20.dp))
-            Text("Sign-in as a Guest", fontSize = 18.sp, fontWeight = FontWeight.Medium)
+            Text(
+                "Sign-in as a Guest", 
+                fontSize = 18.sp, 
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
 
         if (errorMessage != null) {
             Text(
                 text = errorMessage!!,
-                color = Color.Red,
+                color = MaterialTheme.colorScheme.error,
                 fontSize = 14.sp,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
@@ -73,12 +87,14 @@ fun SignInGuestScreen(navController: NavController) {
                 .fillMaxWidth()
                 .height(56.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFA5D1))
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            )
         ) {
             Text(
                 if (isLoading) "Signing In..." else "Continue",
-                fontSize = 18.sp,
-                color = Color.Black
+                fontSize = 18.sp
             )
         }
     }

@@ -7,7 +7,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -59,16 +58,16 @@ fun OnboardingScreen(onFinish: () -> Unit) {
         HorizontalPagerIndicator(
             pagerState = pagerState,
             modifier = Modifier.padding(16.dp),
-            activeColor = Color.Black,
-            inactiveColor = Color.Gray
+            activeColor = MaterialTheme.colorScheme.primary,
+            inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         if (pagerState.currentPage == 2) {
             Button(
                 onClick = { onFinish() },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFFB6C1),
-                    contentColor = Color.Black
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
@@ -98,12 +97,18 @@ fun OnboardingPage(imageRes: Int, title: String, description: String) {
                 .height(300.dp)
                 .padding(bottom = 24.dp)
         )
-        Text(text = title, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Text(
+            text = title, 
+            fontSize = 24.sp, 
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = description,
             fontSize = 14.sp,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

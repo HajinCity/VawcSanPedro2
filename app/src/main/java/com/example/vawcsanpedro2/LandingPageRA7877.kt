@@ -2,6 +2,7 @@ package com.example.vawcsanpedro2
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +26,7 @@ import com.example.vawcsanpedro2.ui.components.ContentSection
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LandingPageRA7877(navController: NavController) {
+    val isDarkTheme = isSystemInDarkTheme()
     val scrollState = rememberScrollState()
 
     Scaffold(
@@ -34,7 +36,8 @@ fun LandingPageRA7877(navController: NavController) {
                     Text(
                         "RA 7877 - Anti-Sexual Harassment Act",
                         color = White,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
                     )
                 },
                 navigationIcon = {
@@ -55,7 +58,7 @@ fun LandingPageRA7877(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(White)
+                .background(if (isDarkTheme) DarkBackground else White)
                 .padding(paddingValues)
                 .verticalScroll(scrollState)
                 .padding(16.dp),
