@@ -35,9 +35,12 @@ fun TermsAndConditionsScreen(navController: NavController) {
     ) {
         Text(
             text = "Terms & Conditions",
-            fontSize = 24.sp,
+            fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            color = Color.Black,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 16.dp)
         )
 
         Box(
