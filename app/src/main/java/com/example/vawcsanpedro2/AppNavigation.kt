@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import com.example.vawcsanpedro2.LandingPageRA11313
 import com.example.vawcsanpedro2.LandingPageMagnaCarta
 import com.example.vawcsanpedro2.LandingPageAvailmentofSpecialLeave
+import com.example.vawcsanpedro2.LandingPageUseOfMaidenName
 
 @Composable
 fun AppNavigation(
@@ -63,6 +64,10 @@ fun AppNavigation(
 
         composable("availmentSpecialLeave") {
             LandingPageAvailmentofSpecialLeave(navController)
+        }
+
+        composable("useOfMaidenName") {
+            LandingPageUseOfMaidenName(navController)
         }
 
     }

@@ -237,6 +237,17 @@ fun LandingPage(
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        // Use of Maiden Name
+        IconWithLabel(
+            iconRes = R.drawable.useofmaidenname,
+            label = "Use of Maiden Name",
+            backgroundColor = LightPurple,
+            onClick = { navController.navigate("useOfMaidenName") },
+            isDarkTheme = isDarkTheme
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
         // Woman and Flowers Illustration
         Card(
             modifier = Modifier
