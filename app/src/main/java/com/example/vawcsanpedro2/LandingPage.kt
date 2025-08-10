@@ -226,6 +226,17 @@ fun LandingPage(
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        // Availment of Special Leave Benefit
+        IconWithLabel(
+            iconRes = R.drawable.leaveform,
+            label = "Availment of Special Leave Benefit",
+            backgroundColor = BrightYellow,
+            onClick = { navController.navigate("availmentSpecialLeave") },
+            isDarkTheme = isDarkTheme
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
         // Woman and Flowers Illustration
         Card(
             modifier = Modifier
