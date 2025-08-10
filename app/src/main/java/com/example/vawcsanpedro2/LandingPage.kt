@@ -219,7 +219,7 @@ fun LandingPage(
         IconWithLabel(
             iconRes = R.drawable.magnacarta,
             label = "Magna Carta of Women",
-            backgroundColor = PrimaryPink,
+            backgroundColor = Purple,
             onClick = { navController.navigate("magnaCarta") },
             isDarkTheme = isDarkTheme
         )
@@ -232,6 +232,17 @@ fun LandingPage(
             label = "Availment of Special Leave Benefit",
             backgroundColor = BrightYellow,
             onClick = { navController.navigate("availmentSpecialLeave") },
+            isDarkTheme = isDarkTheme
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Use of Maiden Name
+        IconWithLabel(
+            iconRes = R.drawable.useofmaidenname,
+            label = "Use of Maiden Name",
+            backgroundColor = LightPurple,
+            onClick = { navController.navigate("useOfMaidenName") },
             isDarkTheme = isDarkTheme
         )
 
