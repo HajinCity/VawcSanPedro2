@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.compose.foundation.isSystemInDarkTheme
 import com.example.vawcsanpedro2.ui.theme.*
+import com.example.vawcsanpedro2.ui.components.ContentSection
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -482,41 +483,5 @@ fun LandingPageRA11313(
     }
 }
 
-@Composable
-fun ContentSection(
-    title: String,
-    content: String,
-    isDarkTheme: Boolean
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isDarkTheme) DarkCard else VeryLightPink
-        ),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-            Text(
-                text = title,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
-                textAlign = TextAlign.Start,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-            Text(
-                text = content,
-                fontSize = 16.sp,
-                textAlign = TextAlign.Start,
-                color = if (isDarkTheme) DarkTextPrimary else TextDark,
-                lineHeight = 24.sp
-            )
-        }
-    }
-}
+
 
