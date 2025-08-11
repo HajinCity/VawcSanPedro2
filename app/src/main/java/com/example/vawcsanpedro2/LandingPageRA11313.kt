@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.compose.ui.graphics.Color
 import com.example.vawcsanpedro2.ui.components.ContentSection
 import com.example.vawcsanpedro2.ui.theme.DarkBackground
 import com.example.vawcsanpedro2.ui.theme.DarkCard
@@ -76,7 +77,7 @@ fun LandingPageRA11313(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(if (isDarkTheme) DarkBackground else White)
+                .background(if (isDarkTheme) Color.Black else White)
                 .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
                 .padding(16.dp),

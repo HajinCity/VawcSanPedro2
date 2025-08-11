@@ -34,6 +34,8 @@ import com.example.vawcsanpedro2.ui.theme.DarkBackground
 import com.example.vawcsanpedro2.ui.theme.PrimaryPink
 import com.example.vawcsanpedro2.ui.theme.TextMedium
 import com.example.vawcsanpedro2.ui.theme.White
+import com.example.vawcsanpedro2.ui.theme.VeryLightPink
+import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,7 +72,7 @@ fun LandingPageRA9262(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(if (isDarkTheme) DarkBackground else White)
+                .background(if (isDarkTheme) Color.Black else White)
                 .padding(paddingValues)
                 .verticalScroll(scrollState)
                 .padding(16.dp),
@@ -99,7 +101,7 @@ fun LandingPageRA9262(navController: NavController) {
                 text = "The Anti-Violence Against Women and their Children Act of 2004",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
-                color = TextMedium,
+                color = if (isDarkTheme) VeryLightPink else TextMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 24.dp)
             )

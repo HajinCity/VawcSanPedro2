@@ -32,7 +32,7 @@ fun LandingPage(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(if (isDarkTheme) DarkBackground else White)
+            .background(if (isDarkTheme) Color.Black else White)
             .verticalScroll(scrollState)
             .padding(top = 48.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -192,7 +192,7 @@ fun LandingPage(
         IconWithLabel(
             iconRes = R.drawable.useofmaidenname,
             label = "Use of Maiden Name",
-            backgroundColor = LightPurple,
+            backgroundColor = InfoBlue,
             onClick = { navController.navigate("useOfMaidenName") },
             isDarkTheme = isDarkTheme
         )
