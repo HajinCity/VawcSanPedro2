@@ -37,7 +37,8 @@ fun LandingPageMagnaCarta(
                     Text(
                         "Republic Act 9710 - Magna Carta of Women",
                         color = White,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
                     )
                 },
                 navigationIcon = {
