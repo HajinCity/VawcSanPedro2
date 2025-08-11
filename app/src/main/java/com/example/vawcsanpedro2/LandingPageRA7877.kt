@@ -58,7 +58,7 @@ fun LandingPageRA7877(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(if (isDarkTheme) DarkBackground else White)
+                .background(if (isDarkTheme) Color.Black else White)
                 .padding(paddingValues)
                 .verticalScroll(scrollState)
                 .padding(16.dp),
@@ -87,7 +87,7 @@ fun LandingPageRA7877(navController: NavController) {
                 text = "The Anti-Sexual Harassment Act of 1995",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
-                color = TextMedium,
+                color = if (isDarkTheme) VeryLightPink else TextMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 24.dp)
             )
