@@ -41,6 +41,13 @@ import java.util.*
 import android.util.Log
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.zIndex
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.rememberScrollState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,6 +112,10 @@ fun ComplaintFormScreen(navController: NavHostController) {
     val scrollState = rememberScrollState()
     val showSuccessDialog = remember { mutableStateOf(false) }
     val navigateToLandingPage = remember { mutableStateOf(false) }
+    
+    // Keyboard handling
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
 
     if (navigateToLandingPage.value) {
         LaunchedEffect(Unit) {
@@ -125,8 +136,9 @@ fun ComplaintFormScreen(navController: NavHostController) {
                     .padding(innerPadding)
                     .fillMaxSize()
                     .zIndex(2f)
-                    .background(if (isDarkTheme) DarkBackground else White)
+                    .background(if (isDarkTheme) Color.Black else White)
                     .verticalScroll(scrollState)
+                    .imePadding()
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
                 
@@ -135,12 +147,13 @@ fun ComplaintFormScreen(navController: NavHostController) {
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
-                    // Enhanced Header Card
-                    EnhancedCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 24.dp)
-                    ) {
+                                         // Enhanced Header Card
+                     EnhancedCard(
+                         modifier = Modifier
+                             .fillMaxWidth()
+                             .padding(bottom = 24.dp),
+                         isDarkTheme = isDarkTheme
+                     ) {
                         Text(
                             "File Your Complaint",
                             style = MaterialTheme.typography.headlineMedium,
@@ -217,12 +230,13 @@ fun ComplaintFormScreen(navController: NavHostController) {
                         Spacer(modifier = Modifier.height(24.dp))
                         SectionHeader("Complaint Details", isDarkTheme)
                         
-                        // Enhanced Complaint Details section
-                        EnhancedCard(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(150.dp)
-                        ) {
+                                                 // Enhanced Complaint Details section
+                         EnhancedCard(
+                             modifier = Modifier
+                                 .fillMaxWidth()
+                                 .height(150.dp),
+                             isDarkTheme = isDarkTheme
+                         ) {
                             OutlinedTextField(
                                 value = complaintText,
                                 onValueChange = { complaintText = it },
@@ -238,6 +252,15 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                                     color = if (isDarkTheme) DarkInputText else TextDark
                                 ),
+                                keyboardOptions = KeyboardOptions(
+                                    imeAction = ImeAction.Done
+                                ),
+                                keyboardActions = KeyboardActions(
+                                    onDone = {
+                                        keyboardController?.hide()
+                                        focusManager.clearFocus()
+                                    }
+                                ),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
                                     unfocusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
@@ -246,9 +269,9 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                     focusedBorderColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
                                     unfocusedBorderColor = if (isDarkTheme) DarkInputBorder else TextLight,
                                     cursorColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
-                                    focusedContainerColor = Color.Transparent,
-                                    unfocusedContainerColor = Color.Transparent,
-                                    disabledContainerColor = Color.Transparent,
+                                    focusedContainerColor = if (isDarkTheme) DarkCard else Color.Transparent,
+                                    unfocusedContainerColor = if (isDarkTheme) DarkCard else Color.Transparent,
+                                    disabledContainerColor = if (isDarkTheme) DarkCard else Color.Transparent,
                                     focusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight,
                                     unfocusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight
                                 ),
@@ -275,7 +298,7 @@ fun ComplaintFormScreen(navController: NavHostController) {
                         )
 
                         PrimaryButton(
-                            text = "Submit Complaint",
+                            text = "Submit",
                             onClick = {
                                 try {
                                     Log.d("ComplaintForm", "Starting form submission...")
@@ -453,6 +476,9 @@ fun ComplaintFormScreen(navController: NavHostController) {
     }
 }
 
+// Simple modifier for form fields
+fun Modifier.formFieldModifier(): Modifier = this.padding(bottom = 16.dp)
+
 // Enhanced Section Header
 @Composable
 fun SectionHeader(title: String, isDarkTheme: Boolean) {
@@ -480,8 +506,9 @@ fun EnhancedFormField(
         value = value,
         onValueChange = onValueChange,
         label = label,
-        modifier = modifier.padding(bottom = 16.dp),
-        placeholder = "Enter $label"
+        modifier = modifier.formFieldModifier(),
+        placeholder = "Enter $label",
+        isDarkTheme = isDarkTheme
     )
 }
 
@@ -500,7 +527,8 @@ fun EnhancedDropdownField(
         onValueChange = onValueChange,
         label = label,
         options = options,
-        modifier = modifier.padding(bottom = 16.dp)
+        modifier = modifier.formFieldModifier(),
+        isDarkTheme = isDarkTheme
     )
 }
 
@@ -520,9 +548,10 @@ fun EnhancedDateField(
         value = value,
         onValueChange = onValueChange,
         label = label,
-        modifier = modifier.padding(bottom = 16.dp),
+        modifier = modifier.formFieldModifier(),
         placeholder = "Select $label",
         readOnly = true,
+        isDarkTheme = isDarkTheme,
         onClick = {
             DatePickerDialog(
                 context,
