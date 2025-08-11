@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.ui.graphics.Color
 import com.example.vawcsanpedro2.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,7 +37,8 @@ fun LandingPage11210(
                     Text(
                         "RA 11210 - 105-Day Expanded Maternity Leave Act",
                         color = White,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
                     )
                 },
                 navigationIcon = {
@@ -57,7 +59,7 @@ fun LandingPage11210(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(White)
+                .background(if (isDarkTheme) Color.Black else White)
                 .padding(paddingValues)
                 .verticalScroll(scrollState)
                 .padding(16.dp),

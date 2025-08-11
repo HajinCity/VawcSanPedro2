@@ -1,5 +1,6 @@
 package com.example.vawcsanpedro2
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -8,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,9 +18,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.compose.foundation.isSystemInDarkTheme
+import com.example.vawcsanpedro2.ui.theme.*
 
 @Composable
 fun TermsAndConditionsScreen(navController: NavController) {
+    val isDarkTheme = isSystemInDarkTheme()
     val scrollState = rememberScrollState()
     val hasScrolledToBottom = remember {
         derivedStateOf {
@@ -30,6 +35,7 @@ fun TermsAndConditionsScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(if (isDarkTheme) Color.Black else Color.White)
             .padding(20.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -37,7 +43,7 @@ fun TermsAndConditionsScreen(navController: NavController) {
             text = "Terms & Conditions",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black,
+            color = if (isDarkTheme) DarkPrimaryPink else MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(vertical = 16.dp)
@@ -59,7 +65,8 @@ fun TermsAndConditionsScreen(navController: NavController) {
                             "and child can live free from fear and harm.\n"
                 }.joinToString("\n"),
                 fontSize = 14.sp,
-                lineHeight = 20.sp
+                lineHeight = 20.sp,
+                color = if (isDarkTheme) VeryLightPink else MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -72,12 +79,17 @@ fun TermsAndConditionsScreen(navController: NavController) {
                             isChecked = it
                         }
                     },
-                    enabled = hasScrolledToBottom.value
+                    enabled = hasScrolledToBottom.value,
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
+                        uncheckedColor = if (isDarkTheme) DarkInputBorder else PrimaryPink
+                    )
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "I have read and accept the Terms & Conditions",
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    color = if (isDarkTheme) VeryLightPink else MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -91,10 +103,10 @@ fun TermsAndConditionsScreen(navController: NavController) {
                 },
                 enabled = isChecked,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFFB6C1),
-                    contentColor = Color.Black,
-                    disabledContainerColor = Color.LightGray,
-                    disabledContentColor = Color.Gray
+                    containerColor = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
+                    contentColor = if (isDarkTheme) Color.White else Color.White,
+                    disabledContainerColor = if (isDarkTheme) DarkInputBorder else MaterialTheme.colorScheme.surfaceVariant,
+                    disabledContentColor = if (isDarkTheme) DarkInputPlaceholder else MaterialTheme.colorScheme.onSurfaceVariant
                 ),
                 modifier = Modifier
                     .fillMaxWidth()

@@ -33,7 +33,7 @@ fun LandingPageUseOfMaidenName(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(
-                if (isDarkTheme) DarkBackground else White
+                if (isDarkTheme) Color.Black else White
             )
             .verticalScroll(rememberScrollState())
     ) {
@@ -59,7 +59,7 @@ fun LandingPageUseOfMaidenName(navController: NavController) {
             
             Text(
                 text = "Use of Maiden Name",
-                style = MaterialTheme.typography.headlineMedium,
+                fontSize = 18.sp,
                 color = Color.White,
                 modifier = Modifier.align(Alignment.Center),
                 fontWeight = FontWeight.Bold
@@ -98,7 +98,7 @@ fun LandingPageUseOfMaidenName(navController: NavController) {
                     Text(
                         text = "Use of Maiden Name",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
+                        color = if (isDarkTheme) Color.White else PrimaryPink,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
                     )
