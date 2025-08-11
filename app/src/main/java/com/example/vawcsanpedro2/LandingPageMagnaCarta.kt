@@ -37,7 +37,8 @@ fun LandingPageMagnaCarta(
                     Text(
                         "Republic Act 9710 - Magna Carta of Women",
                         color = White,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
                     )
                 },
                 navigationIcon = {
@@ -58,7 +59,7 @@ fun LandingPageMagnaCarta(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(if (isDarkTheme) DarkBackground else White)
+                .background(if (isDarkTheme) Color.Black else White)
                 .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
                 .padding(16.dp),

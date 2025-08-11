@@ -3,6 +3,8 @@ package com.example.vawcsanpedro2
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,8 +15,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
+import android.content.res.Configuration
 import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
+import com.example.vawcsanpedro2.ui.theme.*
 
 
 
@@ -23,10 +28,12 @@ import kotlinx.coroutines.launch
 fun OnboardingScreen(onFinish: () -> Unit) {
     val pagerState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
+    val isDarkTheme = isSystemInDarkTheme()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(if (isDarkTheme) Color.Black else Color.White)
             .padding(20.dp),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -59,16 +66,16 @@ fun OnboardingScreen(onFinish: () -> Unit) {
         HorizontalPagerIndicator(
             pagerState = pagerState,
             modifier = Modifier.padding(16.dp),
-            activeColor = Color.Black,
-            inactiveColor = Color.Gray
+            activeColor = PrimaryPink,
+            inactiveColor = TextMedium
         )
 
         if (pagerState.currentPage == 2) {
             Button(
                 onClick = { onFinish() },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFFB6C1),
-                    contentColor = Color.Black
+                    containerColor = PrimaryPink,
+                    contentColor = White
                 ),
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
@@ -81,8 +88,22 @@ fun OnboardingScreen(onFinish: () -> Unit) {
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun OnboardingScreenPreview() {
+    OnboardingScreen(onFinish = {})
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun OnboardingScreenDarkPreview() {
+    OnboardingScreen(onFinish = {})
+}
+
 @Composable
 fun OnboardingPage(imageRes: Int, title: String, description: String) {
+    val isDarkTheme = isSystemInDarkTheme()
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -98,12 +119,18 @@ fun OnboardingPage(imageRes: Int, title: String, description: String) {
                 .height(300.dp)
                 .padding(bottom = 24.dp)
         )
-        Text(text = title, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Text(
+            text = title, 
+            fontSize = 24.sp, 
+            fontWeight = FontWeight.Bold,
+            color = if (isDarkTheme) PrimaryPink else Color.Black
+        )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = description,
             fontSize = 14.sp,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = if (isDarkTheme) DarkPrimaryPink else Color.Black
         )
     }
 }

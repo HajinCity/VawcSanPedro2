@@ -2,29 +2,45 @@ package com.example.vawcsanpedro2
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.vawcsanpedro2.ui.theme.*
 import com.example.vawcsanpedro2.ui.components.ContentSection
+import com.example.vawcsanpedro2.ui.theme.DarkBackground
+import com.example.vawcsanpedro2.ui.theme.PrimaryPink
+import com.example.vawcsanpedro2.ui.theme.TextMedium
+import com.example.vawcsanpedro2.ui.theme.White
+import com.example.vawcsanpedro2.ui.theme.VeryLightPink
+import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LandingPageRA9262(navController: NavController) {
+    val isDarkTheme = isSystemInDarkTheme()
     val scrollState = rememberScrollState()
 
     Scaffold(
@@ -34,7 +50,8 @@ fun LandingPageRA9262(navController: NavController) {
                     Text(
                         "RA 9262 - Anti-VAWC Act",
                         color = White,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
                     )
                 },
                 navigationIcon = {
@@ -55,7 +72,7 @@ fun LandingPageRA9262(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(White)
+                .background(if (isDarkTheme) Color.Black else White)
                 .padding(paddingValues)
                 .verticalScroll(scrollState)
                 .padding(16.dp),
@@ -84,7 +101,7 @@ fun LandingPageRA9262(navController: NavController) {
                 text = "The Anti-Violence Against Women and their Children Act of 2004",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
-                color = TextMedium,
+                color = if (isDarkTheme) VeryLightPink else TextMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 24.dp)
             )
