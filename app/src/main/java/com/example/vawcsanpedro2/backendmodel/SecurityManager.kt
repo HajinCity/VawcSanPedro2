@@ -149,4 +149,45 @@ object SecurityManager {
         val hash = digest.digest(data.toByteArray(Charsets.UTF_8))
         return Base64.encodeToString(hash, Base64.NO_WRAP)
     }
+
+    // Hardcoded AES256 keys for encrypting generated keys
+    private const val HARDCODED_IV = "yhtK5KmQpdHSG4JwzMfz5Yl2ZH3biGEG"
+    private const val HARDCODED_SECRET_KEY = "EK435ULyORVLRhUl7LHCHUgqAtbdpkyk"
+    
+    // Method to encrypt generated keys using hardcoded keys
+    fun encryptGeneratedKeys(generatedSecretKey: String, generatedIVKey: String): Pair<String, String> {
+        try {
+            // Create secret key from hardcoded key
+            val keyBytes = HARDCODED_SECRET_KEY.toByteArray(Charsets.UTF_8)
+            val paddedKey = ByteArray(32) // 256 bits
+            System.arraycopy(keyBytes, 0, paddedKey, 0, minOf(keyBytes.size, 32))
+            val hardcodedKey = SecretKeySpec(paddedKey, "AES")
+            
+            // Create IV from hardcoded IV
+            val ivBytes = HARDCODED_IV.toByteArray(Charsets.UTF_8)
+            val paddedIV = ByteArray(GCM_IV_LENGTH)
+            System.arraycopy(ivBytes, 0, paddedIV, 0, minOf(ivBytes.size, GCM_IV_LENGTH))
+            
+            // Encrypt generated secret key
+            val cipher1 = Cipher.getInstance(ALGORITHM)
+            val gcmSpec1 = GCMParameterSpec(GCM_TAG_LENGTH * 8, paddedIV)
+            cipher1.init(Cipher.ENCRYPT_MODE, hardcodedKey, gcmSpec1)
+            val encryptedSecretKey = cipher1.doFinal(generatedSecretKey.toByteArray(Charsets.UTF_8))
+            val combined1 = paddedIV + encryptedSecretKey
+            val encryptedSecretKeyBase64 = Base64.encodeToString(combined1, Base64.NO_WRAP)
+            
+            // Encrypt generated IV key
+            val cipher2 = Cipher.getInstance(ALGORITHM)
+            val gcmSpec2 = GCMParameterSpec(GCM_TAG_LENGTH * 8, paddedIV)
+            cipher2.init(Cipher.ENCRYPT_MODE, hardcodedKey, gcmSpec2)
+            val encryptedIVKey = cipher2.doFinal(generatedIVKey.toByteArray(Charsets.UTF_8))
+            val combined2 = paddedIV + encryptedIVKey
+            val encryptedIVKeyBase64 = Base64.encodeToString(combined2, Base64.NO_WRAP)
+            
+            return Pair(encryptedSecretKeyBase64, encryptedIVKeyBase64)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to encrypt generated keys", e)
+            throw SecurityException("Generated keys encryption failed", e)
+        }
+    }
 }
