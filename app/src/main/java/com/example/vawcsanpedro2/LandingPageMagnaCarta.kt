@@ -59,7 +59,7 @@ fun LandingPageMagnaCarta(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(if (isDarkTheme) DarkBackground else White)
+                .background(if (isDarkTheme) Color.Black else White)
                 .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
                 .padding(16.dp),

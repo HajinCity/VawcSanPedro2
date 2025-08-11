@@ -182,7 +182,8 @@ fun EnhancedTextField(
     singleLine: Boolean = true,
     maxLines: Int = 1,
     readOnly: Boolean = false,
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null,
+    isDarkTheme: Boolean = false
 ) {
     val focusManager = LocalFocusManager.current
     var isFocused by remember { mutableStateOf(false) }
@@ -211,12 +212,18 @@ fun EnhancedTextField(
                     } else Modifier
                 ),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = PrimaryPink,
-                focusedLabelColor = PrimaryPink,
-                unfocusedBorderColor = Outline,
-                unfocusedLabelColor = TextMedium,
+                focusedBorderColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                focusedLabelColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                unfocusedBorderColor = if (isDarkTheme) DarkInputBorder else Outline,
+                unfocusedLabelColor = if (isDarkTheme) DarkInputLabel else TextMedium,
                 errorBorderColor = ErrorRed,
-                errorLabelColor = ErrorRed
+                errorLabelColor = ErrorRed,
+                focusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                unfocusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                focusedContainerColor = if (isDarkTheme) DarkCard else White,
+                unfocusedContainerColor = if (isDarkTheme) DarkCard else White,
+                focusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight,
+                unfocusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight
             ),
             shape = RoundedCornerShape(12.dp),
             textStyle = MaterialTheme.typography.bodyLarge
@@ -255,7 +262,8 @@ fun EnhancedDropdown(
     options: List<String>,
     modifier: Modifier = Modifier,
     isError: Boolean = false,
-    errorMessage: String = ""
+    errorMessage: String = "",
+    isDarkTheme: Boolean = false
 ) {
     var expanded by remember { mutableStateOf(false) }
     
@@ -274,12 +282,18 @@ fun EnhancedDropdown(
                     .fillMaxWidth()
                     .menuAnchor(),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = PrimaryPink,
-                    focusedLabelColor = PrimaryPink,
-                    unfocusedBorderColor = Outline,
-                    unfocusedLabelColor = TextMedium,
+                    focusedBorderColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                    focusedLabelColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                    unfocusedBorderColor = if (isDarkTheme) DarkInputBorder else Outline,
+                    unfocusedLabelColor = if (isDarkTheme) DarkInputLabel else TextMedium,
                     errorBorderColor = ErrorRed,
-                    errorLabelColor = ErrorRed
+                    errorLabelColor = ErrorRed,
+                    focusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                    unfocusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                    focusedContainerColor = if (isDarkTheme) DarkCard else White,
+                    unfocusedContainerColor = if (isDarkTheme) DarkCard else White,
+                    focusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight,
+                    unfocusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight
                 ),
                 shape = RoundedCornerShape(12.dp),
                 isError = isError,
@@ -290,18 +304,25 @@ fun EnhancedDropdown(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
                 modifier = Modifier
-                    .background(White)
+                    .background(if (isDarkTheme) DarkCard else White)
                     .clip(RoundedCornerShape(12.dp))
             ) {
                 options.forEach { option ->
                     DropdownMenuItem(
-                        text = { Text(option) },
+                        text = { 
+                            Text(
+                                option, 
+                                color = if (isDarkTheme) DarkInputText else TextDark
+                            ) 
+                        },
                         onClick = {
                             onValueChange(option)
                             expanded = false
                         },
                         modifier = Modifier.background(
-                            if (option == value) VeryLightPink else Color.Transparent
+                            if (option == value) {
+                                if (isDarkTheme) DarkInputFocused.copy(alpha = 0.1f) else VeryLightPink
+                            } else Color.Transparent
                         )
                     )
                 }
@@ -324,6 +345,7 @@ fun EnhancedDropdown(
 fun EnhancedCard(
     onClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
+    isDarkTheme: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -345,7 +367,7 @@ fun EnhancedCard(
                 } else Modifier
             ),
         colors = CardDefaults.cardColors(
-            containerColor = White
+            containerColor = if (isDarkTheme) DarkCard else White
         ),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
