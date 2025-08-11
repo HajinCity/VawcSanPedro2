@@ -6,9 +6,10 @@ import androidx.compose.ui.graphics.Color
 
 // Primary Brand Colors
 val PrimaryPink = Color(0xFFE91E63) // Material Design Pink 500 - Better contrast
-val LightPink = Color(0xFFF8BBD9) // Material Design Pink 200
+val LightPink = Color(0xFFFCE4EC) // Material Design Pink 50 - Very light pink for cards
 val SoftPink = Color(0xFFFCE4EC) // Material Design Pink 50
 val VeryLightPink = Color(0xFFFDF2F7) // Custom very light pink
+
 val White = Color(0xFFFFFFFF) // Pure White
 val OffWhite = Color(0xFFFAFAFA) // Slightly off-white for better contrast
 val LightGray = Color(0xFFF5F5F5) // Light Gray

@@ -11,6 +11,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -54,7 +55,7 @@ fun ContentSection(
                 spotColor = if (isDarkTheme) Color.Black else Color.Black.copy(alpha = 0.1f)
             ),
         colors = CardDefaults.cardColors(
-            containerColor = if (isDarkTheme) DarkCard else VeryLightPink
+            containerColor = if (isDarkTheme) DarkCard else LightPink
         ),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
@@ -66,15 +67,18 @@ fun ContentSection(
                 text = title,
                 style = MaterialTheme.typography.headlineSmall,
                 color = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
-                textAlign = TextAlign.Start,
-                modifier = Modifier.padding(bottom = 16.dp)
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
             )
             Text(
                 text = content,
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Justify,
                 color = if (isDarkTheme) DarkTextPrimary else TextDark,
-                lineHeight = 24.sp
+                lineHeight = 24.sp,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
@@ -176,7 +180,9 @@ fun EnhancedTextField(
     imeAction: ImeAction = ImeAction.Next,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     singleLine: Boolean = true,
-    maxLines: Int = 1
+    maxLines: Int = 1,
+    readOnly: Boolean = false,
+    onClick: (() -> Unit)? = null
 ) {
     val focusManager = LocalFocusManager.current
     var isFocused by remember { mutableStateOf(false) }
@@ -188,6 +194,7 @@ fun EnhancedTextField(
             label = { Text(label) },
             placeholder = { Text(placeholder) },
             isError = isError,
+            readOnly = readOnly,
             keyboardOptions = KeyboardOptions(
                 keyboardType = keyboardType,
                 imeAction = imeAction
@@ -197,7 +204,12 @@ fun EnhancedTextField(
             maxLines = maxLines,
             modifier = Modifier
                 .fillMaxWidth()
-                .onFocusChanged { isFocused = it.isFocused },
+                .onFocusChanged { isFocused = it.isFocused }
+                .then(
+                    if (onClick != null && readOnly) {
+                        Modifier.clickable { onClick() }
+                    } else Modifier
+                ),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = PrimaryPink,
                 focusedLabelColor = PrimaryPink,
@@ -315,7 +327,7 @@ fun EnhancedCard(
     content: @Composable () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by rememberUpdatedState(newValue = interactionSource.collectIsPressedAsState().value)
+    val isPressed by interactionSource.collectIsPressedAsState()
     
     Card(
         modifier = modifier
@@ -413,7 +425,7 @@ fun ErrorState(
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            imageVector = Icons.Default.Error,
+            imageVector = Icons.Default.Warning,
             contentDescription = "Error",
             tint = ErrorRed,
             modifier = Modifier.size(48.dp)

@@ -38,19 +38,14 @@ fun LandingPage(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Top Community Image
-        EnhancedCard(
+        Image(
+            painter = painterResource(id = R.drawable.sanpedro8),
+            contentDescription = "Community Image",
             modifier = Modifier
+                .height(200.dp)
                 .fillMaxWidth()
                 .padding(bottom = 24.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.sanpedro8),
-                contentDescription = "Community Image",
-                modifier = Modifier
-                    .height(200.dp)
-                    .fillMaxWidth()
-            )
-        }
+        )
 
         // Mission Statement Card
         ContentSection(
@@ -74,29 +69,11 @@ fun LandingPage(
         PrimaryButton(
             text = "File a Complaint",
             onClick = { navController.navigate("terms") },
-            icon = null,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(80.dp)
                 .padding(vertical = 24.dp)
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.vawc3),
-                    contentDescription = "File Icon",
-                    modifier = Modifier.size(32.dp)
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    "File a Complaint", 
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
+        )
 
         Spacer(modifier = Modifier.height(40.dp))
 
@@ -222,34 +199,30 @@ fun LandingPage(
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Woman and Flowers Illustration - Enhanced Card
-        EnhancedCard(
+        // Woman and Flowers Illustration
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 24.dp)
+                .padding(vertical = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.sanpedro12),
-                    contentDescription = "Woman and Flowers",
-                    modifier = Modifier
-                        .height(150.dp)
-                        .fillMaxWidth()
-                )
+            Image(
+                painter = painterResource(id = R.drawable.sanpedro12),
+                contentDescription = "Woman and Flowers",
+                modifier = Modifier
+                    .height(150.dp)
+                    .fillMaxWidth()
+            )
 
-                Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-                Text(
-                    text = "Everyone Deserves Kindness,\nCare, and Compassion",
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = if (isDarkTheme) DarkPrimaryPink else PrimaryPink
-                )
-            }
+            Text(
+                text = "Everyone Deserves Kindness,\nCare, and Compassion",
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.headlineSmall,
+                color = if (isDarkTheme) DarkPrimaryPink else PrimaryPink
+            )
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -264,9 +237,14 @@ fun IconWithLabel(
     onClick: () -> Unit,
     isDarkTheme: Boolean = false
 ) {
-    EnhancedCard(
+    Card(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDarkTheme) LightPink else White
+        ),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -296,7 +274,7 @@ fun IconWithLabel(
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.SemiBold,
-                color = if (isDarkTheme) DarkTextPrimary else TextDark,
+                color = if (isDarkTheme) Color.Black else TextDark,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp)
