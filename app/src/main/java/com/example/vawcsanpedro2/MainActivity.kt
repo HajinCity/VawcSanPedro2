@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -19,11 +20,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.isSystemInDarkTheme
 import com.example.vawcsanpedro2.ui.theme.VawcSanPedro2Theme
+import com.example.vawcsanpedro2.ui.theme.*
 import kotlinx.coroutines.delay
 import com.example.vawcsanpedro2.backendmodel.SecurityManager
 import com.google.firebase.FirebaseApp
 import android.util.Log
+import android.content.res.Configuration
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,9 +82,12 @@ fun MainScreen() {
 
 @Composable
 fun SplashScreen() {
+    val isDarkTheme = isSystemInDarkTheme()
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(if (isDarkTheme) Color.Black else Color.White)
             .padding(30.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -97,7 +105,7 @@ fun SplashScreen() {
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onBackground
+            color = if (isDarkTheme) PrimaryPink else Color.Black
         )
     }
 }
@@ -105,6 +113,14 @@ fun SplashScreen() {
 @Preview(showBackground = true)
 @Composable
 fun SplashScreenPreview() {
+    VawcSanPedro2Theme {
+        SplashScreen()
+    }
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun SplashScreenDarkPreview() {
     VawcSanPedro2Theme {
         SplashScreen()
     }

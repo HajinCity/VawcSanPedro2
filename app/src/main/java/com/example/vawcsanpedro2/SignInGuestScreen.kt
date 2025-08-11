@@ -3,25 +3,34 @@ package com.example.vawcsanpedro2
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
+import android.content.res.Configuration
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.vawcsanpedro2.backendmodel.AnonymousSignIn
+import com.example.vawcsanpedro2.ui.theme.*
 
 @Composable
 fun SignInGuestScreen(navController: NavController) {
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    val isDarkTheme = isSystemInDarkTheme()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(if (isDarkTheme) Color.Black else Color.White)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
@@ -39,27 +48,27 @@ fun SignInGuestScreen(navController: NavController) {
                 "Welcome to", 
                 fontSize = 20.sp, 
                 fontWeight = FontWeight.Normal,
-                color = MaterialTheme.colorScheme.onBackground
+                color = if (isDarkTheme) DarkPrimaryPink else Color.Black
             )
             Text(
                 "Barangay San Pedro", 
                 fontSize = 22.sp, 
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
+                color = if (isDarkTheme) PrimaryPink else Color.Black
             )
             Spacer(modifier = Modifier.height(20.dp))
             Text(
                 "Sign-in as a Guest", 
                 fontSize = 18.sp, 
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = if (isDarkTheme) DarkPrimaryPink else Color.Black
             )
         }
 
         if (errorMessage != null) {
             Text(
                 text = errorMessage!!,
-                color = MaterialTheme.colorScheme.error,
+                color = ErrorRed,
                 fontSize = 14.sp,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
@@ -88,8 +97,8 @@ fun SignInGuestScreen(navController: NavController) {
                 .height(56.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                containerColor = PrimaryPink,
+                contentColor = White
             )
         ) {
             Text(
@@ -98,4 +107,16 @@ fun SignInGuestScreen(navController: NavController) {
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SignInGuestScreenPreview() {
+    SignInGuestScreen(navController = rememberNavController())
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun SignInGuestScreenDarkPreview() {
+    SignInGuestScreen(navController = rememberNavController())
 }
