@@ -33,21 +33,15 @@ import com.example.vawcsanpedro2.backendmodel.EnhancedEncryptionTransit.validate
 import com.example.vawcsanpedro2.backendmodel.EnhancedEncryptionTransit.validateRespondentData
 import com.example.vawcsanpedro2.backendmodel.EnhancedEncryptionTransit.validateCaseData
 import com.example.vawcsanpedro2.backendmodel.SecurityManager.generateSecureId
+import com.example.vawcsanpedro2.backendmodel.SecurityManager.isInitialized
 import com.example.vawcsanpedro2.ui.theme.*
-import com.example.vawcsanpedro2.ui.components.*
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import android.util.Log
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.zIndex
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.rememberScrollState
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -99,7 +93,7 @@ fun ComplaintFormScreen(navController: NavHostController) {
     )
     val incidentPlaceOptions = listOf(
         "Home", "Religious Institutions", "Brothels and Similar Establishments", "Work",
-        "Place of Medical Treatment", "School", "Transportation & Connecting Sites",
+        "Place of Medical Treatment", "School", "Transportation and Connecting Sites",
         "Commercial Places", "No Response", "Others"
     )
 
@@ -113,9 +107,7 @@ fun ComplaintFormScreen(navController: NavHostController) {
     val showSuccessDialog = remember { mutableStateOf(false) }
     val navigateToLandingPage = remember { mutableStateOf(false) }
     
-    // Keyboard handling
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val focusManager = LocalFocusManager.current
+
 
     if (navigateToLandingPage.value) {
         LaunchedEffect(Unit) {
@@ -129,137 +121,132 @@ fun ComplaintFormScreen(navController: NavHostController) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .zIndex(1f)
+                .zIndex(1f) // Ensure main content appears above any overlays
         ) {
             Column(
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize()
-                    .zIndex(2f)
-                    .background(if (isDarkTheme) Color.Black else White)
+                    .zIndex(2f) // Ensure main content appears above any overlays
+                    .background(MaterialTheme.colorScheme.background)
                     .verticalScroll(scrollState)
-                    .imePadding()
             ) {
-                Spacer(modifier = Modifier.height(16.dp))
-                
+                // Add top padding for better visibility
+                Spacer(modifier = Modifier.height(8.dp))
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
-                                         // Enhanced Header Card
-                     EnhancedCard(
-                         modifier = Modifier
-                             .fillMaxWidth()
-                             .padding(bottom = 24.dp),
-                         isDarkTheme = isDarkTheme
-                     ) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        ),
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
                         Text(
                             "File Your Complaint",
-                            style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp,
                             textAlign = TextAlign.Center,
                             color = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(24.dp)
+                                .padding(16.dp)
                         )
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
-                    
-                    // Enhanced form layout
+
+                    // Improved form layout with better spacing and visibility
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .zIndex(1f)
+                            .zIndex(1f) // Ensure form appears above any overlays
                             .background(
-                                if (isDarkTheme) DarkCard else VeryLightPink,
-                                shape = RoundedCornerShape(16.dp)
+                                if (isDarkTheme) DarkCard else Color.Transparent,
+                                shape = RoundedCornerShape(12.dp)
                             )
-                            .padding(24.dp)
+                            .padding(16.dp)
                     ) {
                         SectionHeader("Complainant Personal Information", isDarkTheme)
-                        EnhancedFormField("Last Name", complainant.lastName, { complainant = complainant.copy(lastName = it) }, isDarkTheme)
-                        EnhancedFormField("First Name", complainant.firstName, { complainant = complainant.copy(firstName = it) }, isDarkTheme)
-                        EnhancedFormField("Middle Name", complainant.middleName, { complainant = complainant.copy(middleName = it) }, isDarkTheme)
-                        EnhancedDropdownField("Sex", complainant.sexIdentification, sexOptions, { complainant = complainant.copy(sexIdentification = it) }, isDarkTheme)
-                        EnhancedFormField("Age", complainant.age, { complainant = complainant.copy(age = it) }, isDarkTheme)
-                        EnhancedDateField("Birthdate", complainant.birthdate, { complainant = complainant.copy(birthdate = it) }, isDarkTheme)
-                        EnhancedDropdownField("Civil Status", complainant.civilStatus, civilStatusOptions, { complainant = complainant.copy(civilStatus = it) }, isDarkTheme)
-                        EnhancedFormField("Religion", complainant.religion, { complainant = complainant.copy(religion = it) }, isDarkTheme)
-                        EnhancedFormField("Nationality", complainant.nationality, { complainant = complainant.copy(nationality = it) }, isDarkTheme)
-                        EnhancedFormField("Occupation", complainant.occupation, { complainant = complainant.copy(occupation = it) }, isDarkTheme)
+                        FormField("Last Name", complainant.lastName, { complainant = complainant.copy(lastName = it) }, isDarkTheme)
+                        FormField("First Name", complainant.firstName, { complainant = complainant.copy(firstName = it) }, isDarkTheme)
+                        FormField("Middle Name", complainant.middleName, { complainant = complainant.copy(middleName = it) }, isDarkTheme)
+                        DropdownField("Sex", complainant.sexIdentification, sexOptions, { complainant = complainant.copy(sexIdentification = it) }, isDarkTheme)
+                        FormField("Age", complainant.age, { complainant = complainant.copy(age = it) }, isDarkTheme)
+                        DateField("Birthdate", complainant.birthdate, { complainant = complainant.copy(birthdate = it) }, isDarkTheme)
+                        DropdownField("Civil Status", complainant.civilStatus, civilStatusOptions, { complainant = complainant.copy(civilStatus = it) }, isDarkTheme)
+                        FormField("Religion", complainant.religion, { complainant = complainant.copy(religion = it) }, isDarkTheme)
+                        FormField("Nationality", complainant.nationality, { complainant = complainant.copy(nationality = it) }, isDarkTheme)
+                        FormField("Occupation", complainant.occupation, { complainant = complainant.copy(occupation = it) }, isDarkTheme)
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
                         SectionHeader("Complainant Contact Information", isDarkTheme)
-                        EnhancedFormField("Contact No.", complainant.cellNumber, { complainant = complainant.copy(cellNumber = it) }, isDarkTheme)
-                        EnhancedDropdownField("Purok", complainant.address.purok, purokOptions, { complainant = complainant.copy(address = complainant.address.copy(purok = it)) }, isDarkTheme)
+                        FormField("Contact No.", complainant.cellNumber, { complainant = complainant.copy(cellNumber = it) }, isDarkTheme)
+                        DropdownField("Purok", complainant.address.purok, purokOptions, { complainant = complainant.copy(address = complainant.address.copy(purok = it)) }, isDarkTheme)
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
                         SectionHeader("Respondent Personal Information", isDarkTheme)
-                        EnhancedFormField("Last Name", respondent.lastName, { respondent = respondent.copy(lastName = it) }, isDarkTheme)
-                        EnhancedFormField("First Name", respondent.firstName, { respondent = respondent.copy(firstName = it) }, isDarkTheme)
-                        EnhancedFormField("Middle Name", respondent.middleName, { respondent = respondent.copy(middleName = it) }, isDarkTheme)
-                        EnhancedFormField("Alias", respondent.alias, { respondent = respondent.copy(alias = it) }, isDarkTheme)
-                        EnhancedDropdownField("Sex", respondent.sexIdentification, sexOptions, { respondent = respondent.copy(sexIdentification = it) }, isDarkTheme)
-                        EnhancedFormField("Age", respondent.age, { respondent = respondent.copy(age = it) }, isDarkTheme)
-                        EnhancedDateField("Birthdate", respondent.birthdate, { respondent = respondent.copy(birthdate = it) }, isDarkTheme)
-                        EnhancedDropdownField("Civil Status", respondent.civilStatus, civilStatusOptions, { respondent = respondent.copy(civilStatus = it) }, isDarkTheme)
-                        EnhancedFormField("Religion", respondent.religion, { respondent = respondent.copy(religion = it) }, isDarkTheme)
-                        EnhancedFormField("Nationality", respondent.nationality, { respondent = respondent.copy(nationality = it) }, isDarkTheme)
-                        EnhancedFormField("Occupation", respondent.occupation, { respondent = respondent.copy(occupation = it) }, isDarkTheme)
-                        EnhancedDropdownField("Relationship to Complainant", respondent.relationshipToComplainant, relationshipOptions, { respondent = respondent.copy(relationshipToComplainant = it) }, isDarkTheme)
+                        FormField("Last Name", respondent.lastName, { respondent = respondent.copy(lastName = it) }, isDarkTheme)
+                        FormField("First Name", respondent.firstName, { respondent = respondent.copy(firstName = it) }, isDarkTheme)
+                        FormField("Middle Name", respondent.middleName, { respondent = respondent.copy(middleName = it) }, isDarkTheme)
+                        FormField("Alias", respondent.alias, { respondent = respondent.copy(alias = it) }, isDarkTheme)
+                        DropdownField("Sex", respondent.sexIdentification, sexOptions, { respondent = respondent.copy(sexIdentification = it) }, isDarkTheme)
+                        FormField("Age", respondent.age, { respondent = respondent.copy(age = it) }, isDarkTheme)
+                        DateField("Birthdate", respondent.birthdate, { respondent = respondent.copy(birthdate = it) }, isDarkTheme)
+                        DropdownField("Civil Status", respondent.civilStatus, civilStatusOptions, { respondent = respondent.copy(civilStatus = it) }, isDarkTheme)
+                        FormField("Religion", respondent.religion, { respondent = respondent.copy(religion = it) }, isDarkTheme)
+                        FormField("Nationality", respondent.nationality, { respondent = respondent.copy(nationality = it) }, isDarkTheme)
+                        FormField("Occupation", respondent.occupation, { respondent = respondent.copy(occupation = it) }, isDarkTheme)
+                        DropdownField("Relationship to Complainant", respondent.relationshipToComplainant, relationshipOptions, { respondent = respondent.copy(relationshipToComplainant = it) }, isDarkTheme)
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
                         SectionHeader("Respondent Contact Information", isDarkTheme)
-                        EnhancedFormField("Contact No.", respondent.cellNumber, { respondent = respondent.copy(cellNumber = it) }, isDarkTheme)
-                        EnhancedDropdownField("Purok", respondent.address.purok, purokOptions, { respondent = respondent.copy(address = respondent.address.copy(purok = it)) }, isDarkTheme)
+                        FormField("Contact No.", respondent.cellNumber, { respondent = respondent.copy(cellNumber = it) }, isDarkTheme)
+                        DropdownField("Purok", respondent.address.purok, purokOptions, { respondent = respondent.copy(address = respondent.address.copy(purok = it)) }, isDarkTheme)
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
                         SectionHeader("Complaint Information", isDarkTheme)
-                        EnhancedDateField("Incident Date", caseDetails.incidentDate, { caseDetails = caseDetails.copy(incidentDate = it) }, isDarkTheme)
-                        EnhancedDropdownField("Place of the Incident", caseDetails.placeOfIncident.place, incidentPlaceOptions, { caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(place = it)) }, isDarkTheme)
-                        EnhancedDropdownField("Purok", caseDetails.placeOfIncident.purok, purokOptions, { caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(purok = it)) }, isDarkTheme)
-                        
-                        EnhancedFormField("Barangay", caseDetails.placeOfIncident.barangay, { caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(barangay = it)) }, isDarkTheme)
-                        EnhancedFormField("Municipality", caseDetails.placeOfIncident.municipality, { caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(municipality = it)) }, isDarkTheme)
-                        EnhancedFormField("Province", caseDetails.placeOfIncident.province, { caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(province = it)) }, isDarkTheme)
-                        EnhancedFormField("Region", caseDetails.placeOfIncident.region, { caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(region = it)) }, isDarkTheme)
+                        DateField("Incident Date", caseDetails.incidentDate, { caseDetails = caseDetails.copy(incidentDate = it) }, isDarkTheme)
+                        DropdownField("Place of the Incident", caseDetails.placeOfIncident.place, incidentPlaceOptions, { caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(place = it)) }, isDarkTheme)
+                        DropdownField("Purok", caseDetails.placeOfIncident.purok, purokOptions, { caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(purok = it)) }, isDarkTheme)
 
-                        Spacer(modifier = Modifier.height(24.dp))
+
+                        Spacer(modifier = Modifier.height(16.dp))
                         SectionHeader("Complaint Details", isDarkTheme)
-                        
-                                                 // Enhanced Complaint Details section
-                         EnhancedCard(
-                             modifier = Modifier
-                                 .fillMaxWidth()
-                                 .height(150.dp),
-                             isDarkTheme = isDarkTheme
-                         ) {
+
+                        // Enhanced Complaint Details section with better visibility
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(150.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (isDarkTheme) DarkInputBackground else White
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
                             OutlinedTextField(
                                 value = complaintText,
                                 onValueChange = { complaintText = it },
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(16.dp),
-                                placeholder = { 
+                                    .padding(8.dp),
+                                placeholder = {
                                     Text(
-                                        "Enter complaint details...", 
+                                        "Enter complaint details...",
                                         color = if (isDarkTheme) DarkInputPlaceholder else TextLight
-                                    ) 
+                                    )
                                 },
-                                textStyle = MaterialTheme.typography.bodyLarge.copy(
-                                    color = if (isDarkTheme) DarkInputText else TextDark
-                                ),
-                                keyboardOptions = KeyboardOptions(
-                                    imeAction = ImeAction.Done
-                                ),
-                                keyboardActions = KeyboardActions(
-                                    onDone = {
-                                        keyboardController?.hide()
-                                        focusManager.clearFocus()
-                                    }
+                                textStyle = LocalTextStyle.current.copy(
+                                    color = if (isDarkTheme) DarkInputText else TextDark,
+                                    fontSize = 14.sp
                                 ),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
@@ -269,50 +256,55 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                     focusedBorderColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
                                     unfocusedBorderColor = if (isDarkTheme) DarkInputBorder else TextLight,
                                     cursorColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
-                                    focusedContainerColor = if (isDarkTheme) DarkCard else Color.Transparent,
-                                    unfocusedContainerColor = if (isDarkTheme) DarkCard else Color.Transparent,
-                                    disabledContainerColor = if (isDarkTheme) DarkCard else Color.Transparent,
+                                    focusedContainerColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent,
+                                    disabledContainerColor = Color.Transparent,
                                     focusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight,
                                     unfocusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight
-                                ),
-                                shape = RoundedCornerShape(12.dp)
+                                )
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                    // Enhanced Action Buttons
-                    Row(
-                        modifier = Modifier.fillMaxWidth(), 
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        SecondaryButton(
-                            text = "Cancel",
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        OutlinedButton(
                             onClick = {
                                 navController.navigate("landing") {
                                     popUpTo("complaint_form") { inclusive = true }
                                 }
                             },
-                            modifier = Modifier.weight(1f)
-                        )
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = if (isDarkTheme) DarkPrimaryPink else PrimaryPink
+                            ),
+                            border = BorderStroke(2.dp, if (isDarkTheme) DarkPrimaryPink else PrimaryPink),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(
+                                "Cancel",
+                                fontWeight = FontWeight.Medium,
+                                color = if (isDarkTheme) DarkPrimaryPink else PrimaryPink
+                            )
+                        }
 
-                        PrimaryButton(
-                            text = "Submit",
+                        Button(
                             onClick = {
                                 try {
                                     Log.d("ComplaintForm", "Starting form submission...")
-                                    
+
                                     // Enhanced validation
                                     val complainantErrors = validateComplainantData(complainant)
                                     val respondentErrors = validateRespondentData(respondent)
                                     val caseErrors = validateCaseData(caseDetails.copy(incidentDescription = complaintText.text))
-                                    
-                                    if (complainantErrors.isNotEmpty() || respondentErrors.isNotEmpty() || caseErrors.isNotEmpty()) {
-                                        val allErrors = complainantErrors + respondentErrors + caseErrors
-                                        errorMessage.value = allErrors.joinToString("\n")
+
+                                    val allErrors = complainantErrors + respondentErrors + caseErrors
+
+                                    if (allErrors.isNotEmpty()) {
+                                        Log.e("ComplaintForm", "Validation errors: ${allErrors.joinToString(", ")}")
+                                        errorMessage.value = "Validation errors: ${allErrors.joinToString(", ")}"
                                         showErrorDialog.value = true
-                                        return@PrimaryButton
+                                        return@Button
                                     }
 
                                     // Check if all required fields are filled
@@ -334,15 +326,15 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                         Log.e("ComplaintForm", "Not all fields are filled")
                                         errorMessage.value = "Please fill in all required fields."
                                         showErrorDialog.value = true
-                                        return@PrimaryButton
+                                        return@Button
                                     }
 
-                                    Log.d("ComplaintForm", "All validations passed, proceeding with submission...")
+                                                                         Log.d("ComplaintForm", "All validations passed, proceeding with submission...")
 
-                                    // Generate secure complaint ID
-                                    val datePrefix = "CF-$todayDateOnly"
-                                    val secureSuffix = generateSecureId()
-                                    val complaintId = "$datePrefix-$secureSuffix"
+                                     // Generate secure complaint ID
+                                     val datePrefix = "CF-$todayDateOnly"
+                                     val secureSuffix = generateSecureId()
+                                     val complaintId = "$datePrefix-$secureSuffix"
 
                                     Log.d("ComplaintForm", "Generated complaint ID: $complaintId")
 
@@ -355,7 +347,7 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                             region = "IX"
                                         )
                                     )
-                                    
+
                                     val respondentWithFixedLocation = respondent.copy(
                                         address = respondent.address.copy(
                                             barangay = "San Pedro",
@@ -364,7 +356,7 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                             region = "IX"
                                         )
                                     )
-                                    
+
                                     val caseDetailsWithFixedLocation = caseDetails.copy(
                                         complaintDate = todayFull,
                                         incidentDate = caseDetails.incidentDate,
@@ -378,6 +370,11 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                     )
 
                                     // Enhanced encryption with validation
+                                    // Check if SecurityManager is initialized before encryption
+                                    if (!isInitialized()) {
+                                        throw SecurityException("Security system not initialized. Please restart the app.")
+                                    }
+                                    
                                     val encryptedCaseDetails = caseDetailsWithFixedLocation.encryptEnhanced()
 
                                     val encryptedComplaint = Complaint(
@@ -410,160 +407,319 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                     showErrorDialog.value = true
                                 }
                             },
-                            modifier = Modifier.weight(1f)
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
+                                contentColor = if (isDarkTheme) DarkTextPrimary else White
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text("File Now", fontWeight = FontWeight.Bold)
+                        }
+                    }
+
+                    if (showSuccessDialog.value) {
+                        AlertDialog(
+                            onDismissRequest = { },
+                            modifier = Modifier.zIndex(1000f), // Ensure dialog appears above everything
+                            confirmButton = {
+                                Button(
+                                    onClick = {
+                                        showSuccessDialog.value = false
+                                        navigateToLandingPage.value = true
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen),
+                                    modifier = Modifier.padding(8.dp)
+                                ) {
+                                    Text("Ok", fontWeight = FontWeight.Bold)
+                                }
+                            },
+                            title = {
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.sanpedro1),
+                                        contentDescription = "Barangay San Pedro Logo 1",
+                                        modifier = Modifier.size(50.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Image(
+                                        painter = painterResource(id = R.drawable.sanpedro2),
+                                        contentDescription = "Barangay San Pedro Logo 2",
+                                        modifier = Modifier.size(50.dp)
+                                    )
+                                }
+                            },
+                            text = {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                ) {
+                                    Text(
+                                        "You have Successfully Filed a Complaint.",
+                                        textAlign = TextAlign.Center,
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 16.sp
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    Text(
+                                        "You may Proceed to Barangay San Pedro Pagadian for legal consultation.",
+                                        textAlign = TextAlign.Center,
+                                        fontSize = 14.sp
+                                    )
+                                }
+                            },
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            titleContentColor = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
+                            textContentColor = if (isDarkTheme) DarkTextPrimary else TextDark
+                        )
+                    }
+
+                    if (showErrorDialog.value) {
+                        AlertDialog(
+                            onDismissRequest = { showErrorDialog.value = false },
+                            modifier = Modifier.zIndex(1000f), // Ensure dialog appears above everything
+                            confirmButton = {
+                                Button(
+                                    onClick = { showErrorDialog.value = false },
+                                    colors = ButtonDefaults.buttonColors(containerColor = ErrorRed),
+                                    modifier = Modifier.padding(8.dp)
+                                ) {
+                                    Text("Ok", fontWeight = FontWeight.Bold)
+                                }
+                            },
+                            title = {
+                                Text("Error", color = ErrorRed, fontWeight = FontWeight.Bold)
+                            },
+                            text = {
+                                Text(
+                                    errorMessage.value,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                )
+                            },
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            titleContentColor = ErrorRed,
+                            textContentColor = if (isDarkTheme) DarkTextPrimary else TextDark
                         )
                     }
                 }
             }
         }
     }
-
-    // Enhanced Error Dialog
-    if (showErrorDialog.value) {
-        AlertDialog(
-            onDismissRequest = { showErrorDialog.value = false },
-            title = {
-                Text(
-                    "Validation Error",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = ErrorRed
-                )
-            },
-            text = {
-                Text(
-                    errorMessage.value,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            },
-            confirmButton = {
-                PrimaryButton(
-                    text = "OK",
-                    onClick = { showErrorDialog.value = false },
-                    modifier = Modifier.width(100.dp)
-                )
-            }
-        )
-    }
-
-    // Enhanced Success Dialog
-    if (showSuccessDialog.value) {
-        AlertDialog(
-            onDismissRequest = { showSuccessDialog.value = false },
-            title = {
-                Text(
-                    "Success!",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = SuccessGreen
-                )
-            },
-            text = {
-                Text(
-                    "Your complaint has been submitted successfully. A case number has been generated: ${lastSubmittedSuffix.value}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            },
-            confirmButton = {
-                PrimaryButton(
-                    text = "OK",
-                    onClick = { 
-                        showSuccessDialog.value = false
-                        navigateToLandingPage.value = true
-                    },
-                    modifier = Modifier.width(100.dp)
-                )
-            }
-        )
-    }
 }
 
-// Simple modifier for form fields
-fun Modifier.formFieldModifier(): Modifier = this.padding(bottom = 16.dp)
-
-// Enhanced Section Header
 @Composable
 fun SectionHeader(title: String, isDarkTheme: Boolean) {
     Text(
         text = title,
-        style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.SemiBold,
+        fontSize = 16.sp,
         color = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
+        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FormField(label: String, value: String, onValueChange: (String) -> Unit, isDarkTheme: Boolean) {
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp, horizontal = 8.dp)
-    )
+            .padding(vertical = 6.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDarkTheme) DarkInputBackground else White
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            label = {
+                Text(
+                    label,
+                    color = if (isDarkTheme) DarkInputLabel else TextDark,
+                    fontWeight = FontWeight.Medium
+                )
+            },
+            textStyle = LocalTextStyle.current.copy(
+                color = if (isDarkTheme) DarkInputText else TextDark,
+                fontSize = 14.sp
+            ),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                unfocusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                focusedLabelColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                unfocusedLabelColor = if (isDarkTheme) DarkInputLabel else TextMedium,
+                focusedBorderColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                unfocusedBorderColor = if (isDarkTheme) DarkInputBorder else TextLight,
+                cursorColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                focusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight,
+                unfocusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        )
+    }
 }
 
-// Enhanced Form Field
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EnhancedFormField(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit,
-    isDarkTheme: Boolean,
-    modifier: Modifier = Modifier
-) {
-    EnhancedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = label,
-        modifier = modifier.formFieldModifier(),
-        placeholder = "Enter $label",
-        isDarkTheme = isDarkTheme
-    )
-}
+fun DropdownField(label: String, selectedOption: String, options: List<String>, onOptionSelected: (String) -> Unit, isDarkTheme: Boolean) {
+    var expanded by remember { mutableStateOf(false) }
 
-// Enhanced Dropdown Field
-@Composable
-fun EnhancedDropdownField(
-    label: String,
-    value: String,
-    options: List<String>,
-    onValueChange: (String) -> Unit,
-    isDarkTheme: Boolean,
-    modifier: Modifier = Modifier
-) {
-    EnhancedDropdown(
-        value = value,
-        onValueChange = onValueChange,
-        label = label,
-        options = options,
-        modifier = modifier.formFieldModifier(),
-        isDarkTheme = isDarkTheme
-    )
-}
-
-// Enhanced Date Field
-@Composable
-fun EnhancedDateField(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit,
-    isDarkTheme: Boolean,
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-    val calendar = Calendar.getInstance()
-    
-    EnhancedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = label,
-        modifier = modifier.formFieldModifier(),
-        placeholder = "Select $label",
-        readOnly = true,
-        isDarkTheme = isDarkTheme,
-        onClick = {
-            DatePickerDialog(
-                context,
-                { _, year, month, dayOfMonth ->
-                    calendar.set(year, month, dayOfMonth)
-                    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                    onValueChange(dateFormat.format(calendar.time))
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDarkTheme) DarkInputBackground else White
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Box(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+            OutlinedTextField(
+                value = selectedOption,
+                onValueChange = {},
+                readOnly = true,
+                label = {
+                    Text(
+                        label,
+                        color = if (isDarkTheme) DarkInputLabel else TextDark,
+                        fontWeight = FontWeight.Medium
+                    )
                 },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
+                textStyle = LocalTextStyle.current.copy(
+                    color = if (isDarkTheme) DarkInputText else TextDark,
+                    fontSize = 14.sp
+                ),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                    unfocusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                    focusedLabelColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                    unfocusedLabelColor = if (isDarkTheme) DarkInputLabel else TextMedium,
+                    focusedBorderColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                    unfocusedBorderColor = if (isDarkTheme) DarkInputBorder else TextLight,
+                    cursorColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                trailingIcon = {
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(
+                            Icons.Filled.ArrowDropDown,
+                            contentDescription = "Dropdown",
+                            tint = if (isDarkTheme) DarkInputFocused else PrimaryPink
+                        )
+                    }
+                }
+            )
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier
+                    .background(
+                        if (isDarkTheme) DarkInputBackground else VeryLightPink
+                    )
+                    .width(IntrinsicSize.Min)
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                option,
+                                color = if (isDarkTheme) DarkInputText else TextDark
+                            )
+                        },
+                        onClick = {
+                            onOptionSelected(option)
+                            expanded = false
+                        },
+                        colors = MenuDefaults.itemColors(
+                            textColor = if (isDarkTheme) DarkInputText else TextDark
+                        )
+                    )
+                }
+            }
         }
-    )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DateField(label: String, date: String, onDateSelected: (String) -> Unit, isDarkTheme: Boolean) {
+    val context = LocalContext.current
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDarkTheme) DarkInputBackground else White
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        OutlinedTextField(
+            value = date,
+            onValueChange = {},
+            readOnly = true,
+            label = {
+                Text(
+                    label,
+                    color = if (isDarkTheme) DarkInputLabel else TextDark,
+                    fontWeight = FontWeight.Medium
+                )
+            },
+            textStyle = LocalTextStyle.current.copy(
+                color = if (isDarkTheme) DarkInputText else TextDark,
+                fontSize = 14.sp
+            ),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                unfocusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                focusedLabelColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                unfocusedLabelColor = if (isDarkTheme) DarkInputLabel else TextMedium,
+                focusedBorderColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                unfocusedBorderColor = if (isDarkTheme) DarkInputBorder else TextLight,
+                cursorColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent
+            ),
+            trailingIcon = {
+                IconButton(onClick = {
+                    val calendar = Calendar.getInstance()
+                    DatePickerDialog(
+                        context,
+                        { _, year, month, day ->
+                            onDateSelected("%04d-%02d-%02d".format(year, month + 1, day))
+                        },
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH)
+                    ).show()
+                }) {
+                    Icon(
+                        Icons.Filled.ArrowDropDown,
+                        contentDescription = "Pick Date",
+                        tint = if (isDarkTheme) DarkInputFocused else PrimaryPink
+                    )
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        )
+    }
 }
