@@ -33,7 +33,7 @@ import com.example.vawcsanpedro2.backendmodel.EnhancedEncryptionTransit.validate
 import com.example.vawcsanpedro2.backendmodel.EnhancedEncryptionTransit.validateRespondentData
 import com.example.vawcsanpedro2.backendmodel.EnhancedEncryptionTransit.validateCaseData
 import com.example.vawcsanpedro2.backendmodel.SecurityManager.generateSecureId
-import com.example.vawcsanpedro2.backendmodel.SecurityManager.encryptGeneratedKeys
+import com.example.vawcsanpedro2.backendmodel.SecurityManager.isInitialized
 import com.example.vawcsanpedro2.ui.theme.*
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -41,8 +41,7 @@ import java.util.*
 import android.util.Log
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.zIndex
-import java.security.SecureRandom
-import android.util.Base64
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -108,28 +107,7 @@ fun ComplaintFormScreen(navController: NavHostController) {
     val showSuccessDialog = remember { mutableStateOf(false) }
     val navigateToLandingPage = remember { mutableStateOf(false) }
     
-    // Function to generate secret key and IV for encryption
-    fun generateKeysForComplaint(): Pair<String, String> {
-        return try {
-            // Generate a random secret key (32 bytes for AES-256)
-            val secureRandom = SecureRandom()
-            val secretKeyBytes = ByteArray(32)
-            secureRandom.nextBytes(secretKeyBytes)
-            val secretKey = Base64.encodeToString(secretKeyBytes, Base64.NO_WRAP)
-            
-            // Generate a random IV (12 bytes for GCM)
-            val ivBytes = ByteArray(12)
-            secureRandom.nextBytes(ivBytes)
-            val ivKey = Base64.encodeToString(ivBytes, Base64.NO_WRAP)
-            
-            Log.d("ComplaintForm", "Successfully generated new keys for complaint")
-            Pair(secretKey, ivKey)
-        } catch (e: Exception) {
-            Log.e("ComplaintForm", "Failed to generate keys", e)
-            // Return fallback keys if generation fails
-            Pair("fallback_secret_key", "fallback_iv_key")
-        }
-    }
+
 
     if (navigateToLandingPage.value) {
         LaunchedEffect(Unit) {
@@ -353,16 +331,6 @@ fun ComplaintFormScreen(navController: NavHostController) {
 
                                                                          Log.d("ComplaintForm", "All validations passed, proceeding with submission...")
 
-                                     // Generate secret key and IV for encryption
-                                     val (generatedSecretKey, generatedIVKey) = generateKeysForComplaint()
-                                     Log.d("ComplaintForm", "Generated Secret Key: ${generatedSecretKey.take(20)}...")
-                                     Log.d("ComplaintForm", "Generated IV: ${generatedIVKey.take(20)}...")
-
-                                     // Encrypt the generated keys using hardcoded AES256 keys
-                                     val (encryptedSecretKey, encryptedIVKey) = encryptGeneratedKeys(generatedSecretKey, generatedIVKey)
-                                     Log.d("ComplaintForm", "Encrypted Secret Key: ${encryptedSecretKey.take(30)}...")
-                                     Log.d("ComplaintForm", "Encrypted IV: ${encryptedIVKey.take(30)}...")
-
                                      // Generate secure complaint ID
                                      val datePrefix = "CF-$todayDateOnly"
                                      val secureSuffix = generateSecureId()
@@ -402,16 +370,19 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                     )
 
                                     // Enhanced encryption with validation
+                                    // Check if SecurityManager is initialized before encryption
+                                    if (!isInitialized()) {
+                                        throw SecurityException("Security system not initialized. Please restart the app.")
+                                    }
+                                    
                                     val encryptedCaseDetails = caseDetailsWithFixedLocation.encryptEnhanced()
 
-                                                                         val encryptedComplaint = Complaint(
-                                         caseId = complaintId,
-                                         complainant = complainantWithFixedLocation.encryptEnhanced(),
-                                         respondent = respondentWithFixedLocation.encryptEnhanced(),
-                                         caseDetails = encryptedCaseDetails,
-                                         secretKey = encryptedSecretKey,
-                                         ivKey = encryptedIVKey
-                                     )
+                                    val encryptedComplaint = Complaint(
+                                        caseId = complaintId,
+                                        complainant = complainantWithFixedLocation.encryptEnhanced(),
+                                        respondent = respondentWithFixedLocation.encryptEnhanced(),
+                                        caseDetails = encryptedCaseDetails
+                                    )
 
                                     Log.d("ComplaintForm", "Encrypted complaint created, submitting to Firestore...")
 

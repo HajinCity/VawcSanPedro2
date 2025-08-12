@@ -4,9 +4,7 @@ data class Complaint(
     val caseId: String = "",
     val complainant: ComplainantDetails = ComplainantDetails(),
     val respondent: RespondentDetails = RespondentDetails(),
-    val caseDetails: CaseDetails = CaseDetails(),
-    val secretKey: String = "",  // Store the actual generated secret key
-    val ivKey: String = ""       // Store the actual generated IV key
+    val caseDetails: CaseDetails = CaseDetails()
 )
 
 data class ComplainantDetails(

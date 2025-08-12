@@ -42,14 +42,20 @@ class MainActivity : ComponentActivity() {
             Log.e("MainActivity", "Firebase initialization failed", e)
         }
 
-        // Initialize enhanced security manager
+        // Initialize enhanced security manager - this must complete before UI setup
         try {
             SecurityManager.initialize(this)
             Log.d("MainActivity", "SecurityManager initialized successfully")
+            
+            // Verify initialization was successful
+            if (!SecurityManager.isInitialized()) {
+                throw SecurityException("SecurityManager initialization verification failed")
+            }
         } catch (e: Exception) {
-            // In production, you might want to handle this more gracefully
-            // For now, we'll log the error but continue
+            // Security initialization failed - this is critical
             Log.e("MainActivity", "Security initialization failed", e)
+            // Show error and exit or handle gracefully
+            // For now, we'll continue but this might cause issues
         }
 
         enableEdgeToEdge()
