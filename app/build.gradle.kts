@@ -6,8 +6,8 @@ if (localPropertiesFile.exists()) {
 }
 
 // Remove the old encryption keys from local.properties
-// val secretKey = localProperties.getProperty("ENCRYPTION_SECRET_KEY") ?: ""
-// val initVector = localProperties.getProperty("ENCRYPTION_INIT_VECTOR") ?: ""
+ val secretKey = localProperties.getProperty("ENCRYPTION_SECRET_KEY") ?: ""
+ val initVector = localProperties.getProperty("ENCRYPTION_INIT_VECTOR") ?: ""
 
 plugins {
 
