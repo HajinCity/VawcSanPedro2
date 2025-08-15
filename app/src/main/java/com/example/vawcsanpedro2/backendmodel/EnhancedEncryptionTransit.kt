@@ -55,12 +55,12 @@ object EnhancedEncryptionTransit {
     fun CaseDetails.encryptEnhanced(): CaseDetails {
         return try {
             this.copy(
-                complaintDate = SecurityManager.encrypt(SecurityManager.sanitizeInput(complaintDate)),
+                complaintDate = complaintDate, // Excluded from encryption
                 vawcCase = SecurityManager.encrypt(SecurityManager.sanitizeInput(vawcCase)),
                 subCase = SecurityManager.encrypt(SecurityManager.sanitizeInput(subCase)),
                 caseStatus = SecurityManager.encrypt(SecurityManager.sanitizeInput(caseStatus)),
                 referredTo = SecurityManager.encrypt(SecurityManager.sanitizeInput(referredTo)),
-                incidentDate = SecurityManager.encrypt(SecurityManager.sanitizeInput(incidentDate)),
+                incidentDate = incidentDate, // Excluded from encryption
                 incidentDescription = SecurityManager.encrypt(SecurityManager.sanitizeInput(incidentDescription)),
                 placeOfIncident = placeOfIncident.encryptEnhanced()
             )
