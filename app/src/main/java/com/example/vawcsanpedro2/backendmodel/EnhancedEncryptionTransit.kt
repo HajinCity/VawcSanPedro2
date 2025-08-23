@@ -14,7 +14,7 @@ object EnhancedEncryptionTransit {
                 middleName = SecurityManager.encrypt(SecurityManager.sanitizeInput(middleName)),
                 sexIdentification = SecurityManager.encrypt(SecurityManager.sanitizeInput(sexIdentification)),
                 civilStatus = SecurityManager.encrypt(SecurityManager.sanitizeInput(civilStatus)),
-                birthdate = SecurityManager.encrypt(SecurityManager.sanitizeInput(birthdate)),
+                birthdate = birthdate, // Excluded from encryption
                 age = SecurityManager.encrypt(SecurityManager.sanitizeInput(age)),
                 religion = SecurityManager.encrypt(SecurityManager.sanitizeInput(religion)),
                 cellNumber = SecurityManager.encrypt(SecurityManager.sanitizeInput(cellNumber)),
@@ -37,7 +37,7 @@ object EnhancedEncryptionTransit {
                 alias = SecurityManager.encrypt(SecurityManager.sanitizeInput(alias)),
                 sexIdentification = SecurityManager.encrypt(SecurityManager.sanitizeInput(sexIdentification)),
                 civilStatus = SecurityManager.encrypt(SecurityManager.sanitizeInput(civilStatus)),
-                birthdate = SecurityManager.encrypt(SecurityManager.sanitizeInput(birthdate)),
+                birthdate = birthdate, // Excluded from encryption
                 age = SecurityManager.encrypt(SecurityManager.sanitizeInput(age)),
                 religion = SecurityManager.encrypt(SecurityManager.sanitizeInput(religion)),
                 cellNumber = SecurityManager.encrypt(SecurityManager.sanitizeInput(cellNumber)),
