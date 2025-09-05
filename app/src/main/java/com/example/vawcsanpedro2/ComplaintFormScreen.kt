@@ -460,24 +460,27 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                     
                                     val encryptedCaseDetails = caseDetailsWithFixedLocation.encryptEnhanced()
 
+                                    Log.d("ComplaintForm", "Encrypted complaint created, submitting to Firestore...")
+
+                                    // First add the document to get the auto-generated ID
+                                    val docRef = db.collection("complaints").document()
+                                    val documentId = docRef.id
+                                    
                                     val encryptedComplaint = Complaint(
-                                        caseId = "", // No UID - using empty string
+                                        caseId = documentId, // Set caseId to match Firestore document ID
                                         complainant = complainantWithFixedLocation.encryptEnhanced(),
                                         respondent = respondentWithFixedLocation.encryptEnhanced(),
                                         caseDetails = encryptedCaseDetails
                                     )
 
-                                    Log.d("ComplaintForm", "Encrypted complaint created, submitting to Firestore...")
-
-                                    // Use Firestore auto-generated document ID
-                                    db.collection("complaints").add(encryptedComplaint)
-                                        .addOnSuccessListener { documentReference ->
-                                            Log.d("ComplaintForm", "Complaint submitted successfully with ID: ${documentReference.id}")
+                                    // Save the document with the known ID
+                                    docRef.set(encryptedComplaint)
+                                        .addOnSuccessListener {
+                                            Log.d("ComplaintForm", "Complaint submitted successfully with ID: $documentId")
                                             complainant = ComplainantDetails()
                                             respondent = RespondentDetails()
                                             caseDetails = CaseDetails(complaintDate = todayFull, incidentDate = todayDateOnly)
                                             complaintText = TextFieldValue()
-                                            // No need to store suffix since we're not generating custom IDs
                                             showSuccessDialog.value = true
                                         }
                                         .addOnFailureListener { exception ->
