@@ -43,6 +43,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.zIndex
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,10 +90,8 @@ fun ComplaintFormScreen(navController: NavHostController) {
     val sexOptions = listOf("Male", "Female")
     val civilStatusOptions = listOf("Single", "Live-in", "Separated", "Married", "Widowed")
     val relationshipOptions = listOf(
-        "Current Spouse/Partner", "Former Fiance/Dating Relationship", "Teacher/Instructor/Professor",
-        "Neighbors/Peers/Co-Workers/Classmates", "Former Spouse/Partner", "Employer/Manager/Supervisor",
-        "Coach/Trainer", "Stranger", "Current Fiance/Dating Relationship", "Agent of the Employer",
-        "People of Authority/Service Provider", "Family", "Other Relatives"
+        "Husband", "Boyfriend", "Common Law/Live-in Partner",
+        "Ex-Boyfriend", "Ex-Husband"
     )
     val incidentPlaceOptions = listOf(
         "Home", "Religious Institutions", "Brothels and Similar Establishments", "Work",
@@ -105,6 +105,10 @@ fun ComplaintFormScreen(navController: NavHostController) {
         mutableStateOf(CaseDetails(complaintDate = todayFull, incidentDate = todayDateOnly))
     }
     var complaintText by remember { mutableStateOf(TextFieldValue()) }
+    var isPhysicalAbuse by remember { mutableStateOf(false) }
+    var isPsychologicalAbuse by remember { mutableStateOf(false) }
+    var isSexualAbuse by remember { mutableStateOf(false) }
+    var isEconomicAbuse by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
     val showSuccessDialog = remember { mutableStateOf(false) }
     val navigateToLandingPage = remember { mutableStateOf(false) }
@@ -280,6 +284,33 @@ fun ComplaintFormScreen(navController: NavHostController) {
 
                         Spacer(modifier = Modifier.height(16.dp))
                         SectionHeader("Complaint Information", isDarkTheme)
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            CheckboxField(
+                                label = "Physical Abuse",
+                                checked = isPhysicalAbuse,
+                                onCheckedChange = { isPhysicalAbuse = it },
+                                isDarkTheme = isDarkTheme
+                            )
+                            CheckboxField(
+                                label = "Psychological Abuse",
+                                checked = isPsychologicalAbuse,
+                                onCheckedChange = { isPsychologicalAbuse = it },
+                                isDarkTheme = isDarkTheme
+                            )
+                            CheckboxField(
+                                label = "Sexual Abuse",
+                                checked = isSexualAbuse,
+                                onCheckedChange = { isSexualAbuse = it },
+                                isDarkTheme = isDarkTheme
+                            )
+                            CheckboxField(
+                                label = "Economic Abuse",
+                                checked = isEconomicAbuse,
+                                onCheckedChange = { isEconomicAbuse = it },
+                                isDarkTheme = isDarkTheme
+                            )
+                        }
+
                         DateField("Incident Date", caseDetails.incidentDate, { caseDetails = caseDetails.copy(incidentDate = it) }, isDarkTheme,
                             isError = fieldErrors.containsKey("incidentDate"), 
                             errorMessage = fieldErrors["incidentDate"] ?: "")
@@ -444,6 +475,12 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                         complaintDate = todayFull,
                                         incidentDate = caseDetails.incidentDate,
                                         incidentDescription = complaintText.text,
+                                        subCase = com.example.vawcsanpedro2.backendmodel.SubCase(
+                                            physical = isPhysicalAbuse,
+                                            psychological = isPsychologicalAbuse,
+                                            sexual = isSexualAbuse,
+                                            economic = isEconomicAbuse
+                                        ),
                                         placeOfIncident = caseDetails.placeOfIncident.copy(
                                             barangay = "San Pedro",
                                             municipality = "Pagadian City",
@@ -481,6 +518,10 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                             respondent = RespondentDetails()
                                             caseDetails = CaseDetails(complaintDate = todayFull, incidentDate = todayDateOnly)
                                             complaintText = TextFieldValue()
+                                            isPhysicalAbuse = false
+                                            isPsychologicalAbuse = false
+                                            isSexualAbuse = false
+                                            isEconomicAbuse = false
                                             showSuccessDialog.value = true
                                         }
                                         .addOnFailureListener { exception ->
@@ -606,6 +647,47 @@ fun SectionHeader(title: String, isDarkTheme: Boolean) {
         color = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
         modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
     )
+}
+
+@Composable
+fun CheckboxField(
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    isDarkTheme: Boolean
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDarkTheme) DarkInputBackground else White
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                colors = CheckboxDefaults.colors(
+                    checkedColor = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
+                    uncheckedColor = if (isDarkTheme) DarkInputBorder else TextLight
+                )
+            )
+            Text(
+                text = label,
+                color = if (isDarkTheme) DarkInputText else TextDark,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(start = 4.dp)
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

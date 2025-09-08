@@ -57,7 +57,7 @@ object EnhancedEncryptionTransit {
             this.copy(
                 complaintDate = complaintDate, // Excluded from encryption
                 vawcCase = SecurityManager.encrypt(SecurityManager.sanitizeInput(vawcCase)),
-                subCase = SecurityManager.encrypt(SecurityManager.sanitizeInput(subCase)),
+                // subCase is a set of booleans; do not encrypt booleans
                 caseStatus = SecurityManager.encrypt(SecurityManager.sanitizeInput(caseStatus)),
                 referredTo = SecurityManager.encrypt(SecurityManager.sanitizeInput(referredTo)),
                 incidentDate = incidentDate, // Excluded from encryption

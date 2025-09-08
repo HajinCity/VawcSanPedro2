@@ -42,12 +42,19 @@ data class RespondentDetails(
 data class CaseDetails(
     val complaintDate: String = "",
     val vawcCase: String = "R.A. 9262: Anti Violence Against Women and their Children Act",      // Optional: dropdown if you define case types
-    val subCase: String = "N/A",       // Optional
+    val subCase: SubCase = SubCase(),       // Optional: abuse types selected
     val caseStatus: String = "Active",    // Optional: e.g., “Pending”, “Referred”
     val referredTo: String = "Not Yet",    // Optional
     val incidentDate: String = "",
     val incidentDescription: String = "",
     val placeOfIncident: IncidentLocation = IncidentLocation()
+)
+
+data class SubCase(
+    val physical: Boolean = false,
+    val psychological: Boolean = false,
+    val sexual: Boolean = false,
+    val economic: Boolean = false
 )
 
 data class Address(
