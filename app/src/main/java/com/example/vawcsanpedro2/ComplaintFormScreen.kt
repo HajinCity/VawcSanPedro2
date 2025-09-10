@@ -41,6 +41,10 @@ import java.util.*
 import android.util.Log
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.zIndex
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,10 +90,8 @@ fun ComplaintFormScreen(navController: NavHostController) {
     val sexOptions = listOf("Male", "Female")
     val civilStatusOptions = listOf("Single", "Live-in", "Separated", "Married", "Widowed")
     val relationshipOptions = listOf(
-        "Current Spouse/Partner", "Former Fiance/Dating Relationship", "Teacher/Instructor/Professor",
-        "Neighbors/Peers/Co-Workers/Classmates", "Former Spouse/Partner", "Employer/Manager/Supervisor",
-        "Coach/Trainer", "Stranger", "Current Fiance/Dating Relationship", "Agent of the Employer",
-        "People of Authority/Service Provider", "Family", "Other Relatives"
+        "Husband", "Boyfriend", "Common Law/Live-in Partner",
+        "Ex-Boyfriend", "Ex-Husband"
     )
     val incidentPlaceOptions = listOf(
         "Home", "Religious Institutions", "Brothels and Similar Establishments", "Work",
@@ -103,9 +105,23 @@ fun ComplaintFormScreen(navController: NavHostController) {
         mutableStateOf(CaseDetails(complaintDate = todayFull, incidentDate = todayDateOnly))
     }
     var complaintText by remember { mutableStateOf(TextFieldValue()) }
+    var isPhysicalAbuse by remember { mutableStateOf(false) }
+    var isPsychologicalAbuse by remember { mutableStateOf(false) }
+    var isSexualAbuse by remember { mutableStateOf(false) }
+    var isEconomicAbuse by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
     val showSuccessDialog = remember { mutableStateOf(false) }
     val navigateToLandingPage = remember { mutableStateOf(false) }
+    
+    // Field-level error states
+    var fieldErrors by remember { mutableStateOf(mapOf<String, String>()) }
+    
+    // Function to clear field errors when user starts typing
+    fun clearFieldError(fieldName: String) {
+        if (fieldErrors.containsKey(fieldName)) {
+            fieldErrors = fieldErrors - fieldName
+        }
+    }
     
 
 
@@ -175,94 +191,209 @@ fun ComplaintFormScreen(navController: NavHostController) {
                             .padding(16.dp)
                     ) {
                         SectionHeader("Complainant Personal Information", isDarkTheme)
-                        FormField("Last Name", complainant.lastName, { complainant = complainant.copy(lastName = it) }, isDarkTheme)
-                        FormField("First Name", complainant.firstName, { complainant = complainant.copy(firstName = it) }, isDarkTheme)
-                        FormField("Middle Name", complainant.middleName, { complainant = complainant.copy(middleName = it) }, isDarkTheme)
-                        DropdownField("Sex", complainant.sexIdentification, sexOptions, { complainant = complainant.copy(sexIdentification = it) }, isDarkTheme)
-                        FormField("Age", complainant.age, { complainant = complainant.copy(age = it) }, isDarkTheme)
-                        DateField("Birthdate", complainant.birthdate, { complainant = complainant.copy(birthdate = it) }, isDarkTheme)
-                        DropdownField("Civil Status", complainant.civilStatus, civilStatusOptions, { complainant = complainant.copy(civilStatus = it) }, isDarkTheme)
-                        FormField("Religion", complainant.religion, { complainant = complainant.copy(religion = it) }, isDarkTheme)
-                        FormField("Nationality", complainant.nationality, { complainant = complainant.copy(nationality = it) }, isDarkTheme)
-                        FormField("Occupation", complainant.occupation, { complainant = complainant.copy(occupation = it) }, isDarkTheme)
+                        FormField("Last Name", complainant.lastName, { 
+                            complainant = complainant.copy(lastName = it)
+                            clearFieldError("lastName")
+                        }, isDarkTheme, 
+                            isError = fieldErrors.containsKey("lastName"), 
+                            errorMessage = fieldErrors["lastName"] ?: "")
+                        FormField("First Name", complainant.firstName, { complainant = complainant.copy(firstName = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("firstName"), 
+                            errorMessage = fieldErrors["firstName"] ?: "")
+                        FormField("Middle Name", complainant.middleName, { complainant = complainant.copy(middleName = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("middleName"), 
+                            errorMessage = fieldErrors["middleName"] ?: "")
+                        DropdownField("Sex", complainant.sexIdentification, sexOptions, { complainant = complainant.copy(sexIdentification = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("sexIdentification"), 
+                            errorMessage = fieldErrors["sexIdentification"] ?: "")
+                        FormField("Age", complainant.age, { complainant = complainant.copy(age = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("age"), 
+                            errorMessage = fieldErrors["age"] ?: "")
+                        DateField("Birthdate", complainant.birthdate, { complainant = complainant.copy(birthdate = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("birthdate"), 
+                            errorMessage = fieldErrors["birthdate"] ?: "")
+                        DropdownField("Civil Status", complainant.civilStatus, civilStatusOptions, { complainant = complainant.copy(civilStatus = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("civilStatus"), 
+                            errorMessage = fieldErrors["civilStatus"] ?: "")
+                        FormField("Religion", complainant.religion, { complainant = complainant.copy(religion = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("religion"), 
+                            errorMessage = fieldErrors["religion"] ?: "")
+                        FormField("Nationality", complainant.nationality, { complainant = complainant.copy(nationality = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("nationality"), 
+                            errorMessage = fieldErrors["nationality"] ?: "")
+                        FormField("Occupation", complainant.occupation, { complainant = complainant.copy(occupation = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("occupation"), 
+                            errorMessage = fieldErrors["occupation"] ?: "")
 
                         Spacer(modifier = Modifier.height(16.dp))
                         SectionHeader("Complainant Contact Information", isDarkTheme)
-                        FormField("Contact No.", complainant.cellNumber, { complainant = complainant.copy(cellNumber = it) }, isDarkTheme)
-                        DropdownField("Purok", complainant.address.purok, purokOptions, { complainant = complainant.copy(address = complainant.address.copy(purok = it)) }, isDarkTheme)
+                        FormField("Contact No.", complainant.cellNumber, { complainant = complainant.copy(cellNumber = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("cellNumber"), 
+                            errorMessage = fieldErrors["cellNumber"] ?: "")
+                        DropdownField("Purok", complainant.address.purok, purokOptions, { complainant = complainant.copy(address = complainant.address.copy(purok = it)) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("purok"), 
+                            errorMessage = fieldErrors["purok"] ?: "")
 
                         Spacer(modifier = Modifier.height(16.dp))
                         SectionHeader("Respondent Personal Information", isDarkTheme)
-                        FormField("Last Name", respondent.lastName, { respondent = respondent.copy(lastName = it) }, isDarkTheme)
-                        FormField("First Name", respondent.firstName, { respondent = respondent.copy(firstName = it) }, isDarkTheme)
-                        FormField("Middle Name", respondent.middleName, { respondent = respondent.copy(middleName = it) }, isDarkTheme)
-                        FormField("Alias", respondent.alias, { respondent = respondent.copy(alias = it) }, isDarkTheme)
-                        DropdownField("Sex", respondent.sexIdentification, sexOptions, { respondent = respondent.copy(sexIdentification = it) }, isDarkTheme)
-                        FormField("Age", respondent.age, { respondent = respondent.copy(age = it) }, isDarkTheme)
-                        DateField("Birthdate", respondent.birthdate, { respondent = respondent.copy(birthdate = it) }, isDarkTheme)
-                        DropdownField("Civil Status", respondent.civilStatus, civilStatusOptions, { respondent = respondent.copy(civilStatus = it) }, isDarkTheme)
-                        FormField("Religion", respondent.religion, { respondent = respondent.copy(religion = it) }, isDarkTheme)
-                        FormField("Nationality", respondent.nationality, { respondent = respondent.copy(nationality = it) }, isDarkTheme)
-                        FormField("Occupation", respondent.occupation, { respondent = respondent.copy(occupation = it) }, isDarkTheme)
-                        DropdownField("Relationship to Complainant", respondent.relationshipToComplainant, relationshipOptions, { respondent = respondent.copy(relationshipToComplainant = it) }, isDarkTheme)
+                        FormField("Last Name", respondent.lastName, { respondent = respondent.copy(lastName = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("respondent_lastName"), 
+                            errorMessage = fieldErrors["respondent_lastName"] ?: "")
+                        FormField("First Name", respondent.firstName, { respondent = respondent.copy(firstName = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("respondent_firstName"), 
+                            errorMessage = fieldErrors["respondent_firstName"] ?: "")
+                        FormField("Middle Name", respondent.middleName, { respondent = respondent.copy(middleName = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("respondent_middleName"), 
+                            errorMessage = fieldErrors["respondent_middleName"] ?: "")
+                        FormField("Alias", respondent.alias, { respondent = respondent.copy(alias = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("respondent_alias"), 
+                            errorMessage = fieldErrors["respondent_alias"] ?: "")
+                        DropdownField("Sex", respondent.sexIdentification, sexOptions, { respondent = respondent.copy(sexIdentification = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("respondent_sexIdentification"), 
+                            errorMessage = fieldErrors["respondent_sexIdentification"] ?: "")
+                        FormField("Age", respondent.age, { respondent = respondent.copy(age = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("respondent_age"), 
+                            errorMessage = fieldErrors["respondent_age"] ?: "")
+                        DateField("Birthdate", respondent.birthdate, { respondent = respondent.copy(birthdate = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("respondent_birthdate"), 
+                            errorMessage = fieldErrors["respondent_birthdate"] ?: "")
+                        DropdownField("Civil Status", respondent.civilStatus, civilStatusOptions, { respondent = respondent.copy(civilStatus = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("respondent_civilStatus"), 
+                            errorMessage = fieldErrors["respondent_civilStatus"] ?: "")
+                        FormField("Religion", respondent.religion, { respondent = respondent.copy(religion = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("respondent_religion"), 
+                            errorMessage = fieldErrors["respondent_religion"] ?: "")
+                        FormField("Nationality", respondent.nationality, { respondent = respondent.copy(nationality = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("respondent_nationality"), 
+                            errorMessage = fieldErrors["respondent_nationality"] ?: "")
+                        FormField("Occupation", respondent.occupation, { respondent = respondent.copy(occupation = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("respondent_occupation"), 
+                            errorMessage = fieldErrors["respondent_occupation"] ?: "")
+                        DropdownField("Relationship to Complainant", respondent.relationshipToComplainant, relationshipOptions, { respondent = respondent.copy(relationshipToComplainant = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("respondent_relationship"), 
+                            errorMessage = fieldErrors["respondent_relationship"] ?: "")
 
                         Spacer(modifier = Modifier.height(16.dp))
                         SectionHeader("Respondent Contact Information", isDarkTheme)
-                        FormField("Contact No.", respondent.cellNumber, { respondent = respondent.copy(cellNumber = it) }, isDarkTheme)
-                        DropdownField("Purok", respondent.address.purok, purokOptions, { respondent = respondent.copy(address = respondent.address.copy(purok = it)) }, isDarkTheme)
+                        FormField("Contact No.", respondent.cellNumber, { respondent = respondent.copy(cellNumber = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("respondent_cellNumber"), 
+                            errorMessage = fieldErrors["respondent_cellNumber"] ?: "")
+                        DropdownField("Purok", respondent.address.purok, purokOptions, { respondent = respondent.copy(address = respondent.address.copy(purok = it)) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("respondent_purok"), 
+                            errorMessage = fieldErrors["respondent_purok"] ?: "")
 
                         Spacer(modifier = Modifier.height(16.dp))
                         SectionHeader("Complaint Information", isDarkTheme)
-                        DateField("Incident Date", caseDetails.incidentDate, { caseDetails = caseDetails.copy(incidentDate = it) }, isDarkTheme)
-                        DropdownField("Place of the Incident", caseDetails.placeOfIncident.place, incidentPlaceOptions, { caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(place = it)) }, isDarkTheme)
-                        DropdownField("Purok", caseDetails.placeOfIncident.purok, purokOptions, { caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(purok = it)) }, isDarkTheme)
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            CheckboxField(
+                                label = "Physical Abuse",
+                                checked = isPhysicalAbuse,
+                                onCheckedChange = { isPhysicalAbuse = it },
+                                isDarkTheme = isDarkTheme
+                            )
+                            CheckboxField(
+                                label = "Psychological Abuse",
+                                checked = isPsychologicalAbuse,
+                                onCheckedChange = { isPsychologicalAbuse = it },
+                                isDarkTheme = isDarkTheme
+                            )
+                            CheckboxField(
+                                label = "Sexual Abuse",
+                                checked = isSexualAbuse,
+                                onCheckedChange = { isSexualAbuse = it },
+                                isDarkTheme = isDarkTheme
+                            )
+                            CheckboxField(
+                                label = "Economic Abuse",
+                                checked = isEconomicAbuse,
+                                onCheckedChange = { isEconomicAbuse = it },
+                                isDarkTheme = isDarkTheme
+                            )
+                        }
+
+                        DateField("Incident Date", caseDetails.incidentDate, { caseDetails = caseDetails.copy(incidentDate = it) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("incidentDate"), 
+                            errorMessage = fieldErrors["incidentDate"] ?: "")
+                        DropdownField("Place of the Incident", caseDetails.placeOfIncident.place, incidentPlaceOptions, { caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(place = it)) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("incidentPlace"), 
+                            errorMessage = fieldErrors["incidentPlace"] ?: "")
+                        DropdownField("Purok", caseDetails.placeOfIncident.purok, purokOptions, { caseDetails = caseDetails.copy(placeOfIncident = caseDetails.placeOfIncident.copy(purok = it)) }, isDarkTheme,
+                            isError = fieldErrors.containsKey("incidentPurok"), 
+                            errorMessage = fieldErrors["incidentPurok"] ?: "")
 
 
                         Spacer(modifier = Modifier.height(16.dp))
                         SectionHeader("Complaint Details", isDarkTheme)
 
                         // Enhanced Complaint Details section with better visibility
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(150.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = if (isDarkTheme) DarkInputBackground else White
-                            ),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            OutlinedTextField(
-                                value = complaintText,
-                                onValueChange = { complaintText = it },
+                        Column {
+                            Card(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(8.dp),
-                                placeholder = {
-                                    Text(
-                                        "Enter complaint details...",
-                                        color = if (isDarkTheme) DarkInputPlaceholder else TextLight
-                                    )
-                                },
-                                textStyle = LocalTextStyle.current.copy(
-                                    color = if (isDarkTheme) DarkInputText else TextDark,
-                                    fontSize = 14.sp
+                                    .fillMaxWidth()
+                                    .height(150.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (isDarkTheme) DarkInputBackground else White
                                 ),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
-                                    unfocusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
-                                    focusedLabelColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
-                                    unfocusedLabelColor = if (isDarkTheme) DarkInputLabel else TextMedium,
-                                    focusedBorderColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
-                                    unfocusedBorderColor = if (isDarkTheme) DarkInputBorder else TextLight,
-                                    cursorColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
-                                    focusedContainerColor = Color.Transparent,
-                                    unfocusedContainerColor = Color.Transparent,
-                                    disabledContainerColor = Color.Transparent,
-                                    focusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight,
-                                    unfocusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight
+                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                OutlinedTextField(
+                                    value = complaintText,
+                                    onValueChange = { complaintText = it },
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(8.dp),
+                                    placeholder = {
+                                        Text(
+                                            "Enter complaint details...",
+                                            color = if (isDarkTheme) DarkInputPlaceholder else TextLight
+                                        )
+                                    },
+                                    textStyle = LocalTextStyle.current.copy(
+                                        color = if (isDarkTheme) DarkInputText else TextDark,
+                                        fontSize = 14.sp
+                                    ),
+                                    isError = fieldErrors.containsKey("incidentDescription"),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                                        unfocusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                                        focusedLabelColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                                        unfocusedLabelColor = if (isDarkTheme) DarkInputLabel else TextMedium,
+                                        focusedBorderColor = if (fieldErrors.containsKey("incidentDescription")) ErrorRed else if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                                        unfocusedBorderColor = if (fieldErrors.containsKey("incidentDescription")) ErrorRed else if (isDarkTheme) DarkInputBorder else TextLight,
+                                        errorBorderColor = ErrorRed,
+                                        errorLabelColor = ErrorRed,
+                                        cursorColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                                        focusedContainerColor = Color.Transparent,
+                                        unfocusedContainerColor = Color.Transparent,
+                                        disabledContainerColor = Color.Transparent,
+                                        focusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight,
+                                        unfocusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight
+                                    )
                                 )
-                            )
+                            }
+                            
+                            // Error message for complaint description
+                            if (fieldErrors.containsKey("incidentDescription")) {
+                                AnimatedVisibility(
+                                    visible = true,
+                                    enter = slideInVertically(
+                                        animationSpec = tween(300),
+                                        initialOffsetY = { -it }
+                                    ) + fadeIn(animationSpec = tween(300)),
+                                    exit = slideOutVertically(
+                                        animationSpec = tween(300),
+                                        targetOffsetY = { -it }
+                                    ) + fadeOut(animationSpec = tween(300))
+                                ) {
+                                    Text(
+                                        text = fieldErrors["incidentDescription"] ?: "",
+                                        color = ErrorRed,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                    )
+                                }
+                            }
                         }
                     }
 
@@ -293,7 +424,10 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                 try {
                                     Log.d("ComplaintForm", "Starting form submission...")
 
-                                    // Enhanced validation
+                                    // Clear previous field errors
+                                    fieldErrors = mapOf()
+
+                                    // Enhanced validation with field-level errors
                                     val complainantErrors = validateComplainantData(complainant)
                                     val respondentErrors = validateRespondentData(respondent)
                                     val caseErrors = validateCaseData(caseDetails.copy(incidentDescription = complaintText.text))
@@ -301,42 +435,22 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                     val allErrors = complainantErrors + respondentErrors + caseErrors
 
                                     if (allErrors.isNotEmpty()) {
-                                        Log.e("ComplaintForm", "Validation errors: ${allErrors.joinToString(", ")}")
-                                        errorMessage.value = "Validation errors: ${allErrors.joinToString(", ")}"
-                                        showErrorDialog.value = true
-                                        return@Button
-                                    }
-
-                                    // Check if all required fields are filled
-                                    val allFieldsFilled = listOf(
-                                        complainant.lastName, complainant.firstName, complainant.middleName,
-                                        complainant.sexIdentification, complainant.age, complainant.birthdate,
-                                        complainant.civilStatus, complainant.religion, complainant.nationality,
-                                        complainant.occupation, complainant.cellNumber, complainant.address.purok,
-                                        respondent.lastName, respondent.firstName, respondent.middleName,
-                                        respondent.alias, respondent.sexIdentification, respondent.age,
-                                        respondent.birthdate, respondent.civilStatus, respondent.religion,
-                                        respondent.nationality, respondent.occupation, respondent.relationshipToComplainant,
-                                        respondent.cellNumber, respondent.address.purok, caseDetails.incidentDate,
-                                        caseDetails.placeOfIncident.place, caseDetails.placeOfIncident.purok,
-                                        complaintText.text
-                                    ).all { it.isNotBlank() }
-
-                                    if (!allFieldsFilled) {
-                                        Log.e("ComplaintForm", "Not all fields are filled")
-                                        errorMessage.value = "Please fill in all required fields."
+                                        Log.e("ComplaintForm", "Validation errors found: ${allErrors.size} fields")
+                                        
+                                        // Convert field errors to map for UI display
+                                        val errorMap = allErrors.associate { it.fieldName to it.message }
+                                        fieldErrors = errorMap
+                                        
+                                        // Show a general error dialog with count
+                                        val errorCount = allErrors.size
+                                        errorMessage.value = "Please fix $errorCount field(s) with errors before submitting."
                                         showErrorDialog.value = true
                                         return@Button
                                     }
 
                                                                          Log.d("ComplaintForm", "All validations passed, proceeding with submission...")
 
-                                     // Generate secure complaint ID
-                                     val datePrefix = "CF-$todayDateOnly"
-                                     val secureSuffix = generateSecureId()
-                                     val complaintId = "$datePrefix-$secureSuffix"
-
-                                    Log.d("ComplaintForm", "Generated complaint ID: $complaintId")
+                                    // No need to generate complaint ID - will use Firestore auto-generated ID
 
                                     // Set fixed location values before encryption
                                     val complainantWithFixedLocation = complainant.copy(
@@ -361,6 +475,12 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                         complaintDate = todayFull,
                                         incidentDate = caseDetails.incidentDate,
                                         incidentDescription = complaintText.text,
+                                        subCase = com.example.vawcsanpedro2.backendmodel.SubCase(
+                                            physical = isPhysicalAbuse,
+                                            psychological = isPsychologicalAbuse,
+                                            sexual = isSexualAbuse,
+                                            economic = isEconomicAbuse
+                                        ),
                                         placeOfIncident = caseDetails.placeOfIncident.copy(
                                             barangay = "San Pedro",
                                             municipality = "Pagadian City",
@@ -377,23 +497,31 @@ fun ComplaintFormScreen(navController: NavHostController) {
                                     
                                     val encryptedCaseDetails = caseDetailsWithFixedLocation.encryptEnhanced()
 
+                                    Log.d("ComplaintForm", "Encrypted complaint created, submitting to Firestore...")
+
+                                    // First add the document to get the auto-generated ID
+                                    val docRef = db.collection("complaints").document()
+                                    val documentId = docRef.id
+                                    
                                     val encryptedComplaint = Complaint(
-                                        caseId = complaintId,
+                                        caseId = documentId, // Set caseId to match Firestore document ID
                                         complainant = complainantWithFixedLocation.encryptEnhanced(),
                                         respondent = respondentWithFixedLocation.encryptEnhanced(),
                                         caseDetails = encryptedCaseDetails
                                     )
 
-                                    Log.d("ComplaintForm", "Encrypted complaint created, submitting to Firestore...")
-
-                                    db.collection("complaints").document(complaintId).set(encryptedComplaint)
+                                    // Save the document with the known ID
+                                    docRef.set(encryptedComplaint)
                                         .addOnSuccessListener {
-                                            Log.d("ComplaintForm", "Complaint submitted successfully!")
+                                            Log.d("ComplaintForm", "Complaint submitted successfully with ID: $documentId")
                                             complainant = ComplainantDetails()
                                             respondent = RespondentDetails()
                                             caseDetails = CaseDetails(complaintDate = todayFull, incidentDate = todayDateOnly)
                                             complaintText = TextFieldValue()
-                                            lastSubmittedSuffix.value = secureSuffix
+                                            isPhysicalAbuse = false
+                                            isPsychologicalAbuse = false
+                                            isSexualAbuse = false
+                                            isEconomicAbuse = false
                                             showSuccessDialog.value = true
                                         }
                                         .addOnFailureListener { exception ->
@@ -521,72 +649,275 @@ fun SectionHeader(title: String, isDarkTheme: Boolean) {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FormField(label: String, value: String, onValueChange: (String) -> Unit, isDarkTheme: Boolean) {
+fun CheckboxField(
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    isDarkTheme: Boolean
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp),
+            .padding(vertical = 4.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isDarkTheme) DarkInputBackground else White
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         shape = RoundedCornerShape(8.dp)
     ) {
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            label = {
-                Text(
-                    label,
-                    color = if (isDarkTheme) DarkInputLabel else TextDark,
-                    fontWeight = FontWeight.Medium
-                )
-            },
-            textStyle = LocalTextStyle.current.copy(
-                color = if (isDarkTheme) DarkInputText else TextDark,
-                fontSize = 14.sp
-            ),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
-                unfocusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
-                focusedLabelColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
-                unfocusedLabelColor = if (isDarkTheme) DarkInputLabel else TextMedium,
-                focusedBorderColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
-                unfocusedBorderColor = if (isDarkTheme) DarkInputBorder else TextLight,
-                cursorColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                disabledContainerColor = Color.Transparent,
-                focusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight,
-                unfocusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight
-            ),
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
-        )
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                colors = CheckboxDefaults.colors(
+                    checkedColor = if (isDarkTheme) DarkPrimaryPink else PrimaryPink,
+                    uncheckedColor = if (isDarkTheme) DarkInputBorder else TextLight
+                )
+            )
+            Text(
+                text = label,
+                color = if (isDarkTheme) DarkInputText else TextDark,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(start = 4.dp)
+            )
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DropdownField(label: String, selectedOption: String, options: List<String>, onOptionSelected: (String) -> Unit, isDarkTheme: Boolean) {
+fun FormField(
+    label: String, 
+    value: String, 
+    onValueChange: (String) -> Unit, 
+    isDarkTheme: Boolean,
+    isError: Boolean = false,
+    errorMessage: String = ""
+) {
+    Column {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 6.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = if (isDarkTheme) DarkInputBackground else White
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            OutlinedTextField(
+                value = value,
+                onValueChange = onValueChange,
+                label = {
+                    Text(
+                        label,
+                        color = if (isDarkTheme) DarkInputLabel else TextDark,
+                        fontWeight = FontWeight.Medium
+                    )
+                },
+                textStyle = LocalTextStyle.current.copy(
+                    color = if (isDarkTheme) DarkInputText else TextDark,
+                    fontSize = 14.sp
+                ),
+                isError = isError,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                    unfocusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                    focusedLabelColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                    unfocusedLabelColor = if (isDarkTheme) DarkInputLabel else TextMedium,
+                    focusedBorderColor = if (isError) ErrorRed else if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                    unfocusedBorderColor = if (isError) ErrorRed else if (isDarkTheme) DarkInputBorder else TextLight,
+                    errorBorderColor = ErrorRed,
+                    errorLabelColor = ErrorRed,
+                    cursorColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent,
+                    focusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight,
+                    unfocusedPlaceholderColor = if (isDarkTheme) DarkInputPlaceholder else TextLight
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            )
+        }
+        
+        // Error message display
+        if (isError && errorMessage.isNotEmpty()) {
+            AnimatedVisibility(
+                visible = true,
+                enter = slideInVertically(
+                    animationSpec = tween(300),
+                    initialOffsetY = { -it }
+                ) + fadeIn(animationSpec = tween(300)),
+                exit = slideOutVertically(
+                    animationSpec = tween(300),
+                    targetOffsetY = { -it }
+                ) + fadeOut(animationSpec = tween(300))
+            ) {
+                Text(
+                    text = errorMessage,
+                    color = ErrorRed,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DropdownField(
+    label: String, 
+    selectedOption: String, 
+    options: List<String>, 
+    onOptionSelected: (String) -> Unit, 
+    isDarkTheme: Boolean,
+    isError: Boolean = false,
+    errorMessage: String = ""
+) {
     var expanded by remember { mutableStateOf(false) }
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isDarkTheme) DarkInputBackground else White
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        shape = RoundedCornerShape(8.dp)
-    ) {
-        Box(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+    Column {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 6.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = if (isDarkTheme) DarkInputBackground else White
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Box(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+                OutlinedTextField(
+                    value = selectedOption,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = {
+                        Text(
+                            label,
+                            color = if (isDarkTheme) DarkInputLabel else TextDark,
+                            fontWeight = FontWeight.Medium
+                        )
+                    },
+                    textStyle = LocalTextStyle.current.copy(
+                        color = if (isDarkTheme) DarkInputText else TextDark,
+                        fontSize = 14.sp
+                    ),
+                    isError = isError,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                        unfocusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
+                        focusedLabelColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                        unfocusedLabelColor = if (isDarkTheme) DarkInputLabel else TextMedium,
+                        focusedBorderColor = if (isError) ErrorRed else if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                        unfocusedBorderColor = if (isError) ErrorRed else if (isDarkTheme) DarkInputBorder else TextLight,
+                        errorBorderColor = ErrorRed,
+                        errorLabelColor = ErrorRed,
+                        cursorColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    trailingIcon = {
+                        IconButton(onClick = { expanded = true }) {
+                            Icon(
+                                Icons.Filled.ArrowDropDown,
+                                contentDescription = "Dropdown",
+                                tint = if (isError) ErrorRed else if (isDarkTheme) DarkInputFocused else PrimaryPink
+                            )
+                        }
+                    }
+                )
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier
+                        .background(
+                            if (isDarkTheme) DarkInputBackground else VeryLightPink
+                        )
+                        .width(IntrinsicSize.Min)
+                ) {
+                    options.forEach { option ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    option,
+                                    color = if (isDarkTheme) DarkInputText else TextDark
+                                )
+                            },
+                            onClick = {
+                                onOptionSelected(option)
+                                expanded = false
+                            },
+                            colors = MenuDefaults.itemColors(
+                                textColor = if (isDarkTheme) DarkInputText else TextDark
+                            )
+                        )
+                    }
+                }
+            }
+
+            // Error message display
+            if (isError && errorMessage.isNotEmpty()) {
+                AnimatedVisibility(
+                    visible = true,
+                    enter = slideInVertically(
+                        animationSpec = tween(300),
+                        initialOffsetY = { -it }
+                    ) + fadeIn(animationSpec = tween(300)),
+                    exit = slideOutVertically(
+                        animationSpec = tween(300),
+                        targetOffsetY = { -it }
+                    ) + fadeOut(animationSpec = tween(300))
+                ) {
+                    Text(
+                        text = errorMessage,
+                        color = ErrorRed,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                    )
+                }
+                         }
+         }
+     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DateField(
+    label: String,
+    date: String,
+    onDateSelected: (String) -> Unit,
+    isDarkTheme: Boolean,
+    isError: Boolean = false,
+    errorMessage: String = ""
+) {
+    val context = LocalContext.current
+
+    Column {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = if (isDarkTheme) DarkInputBackground else White
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+            shape = RoundedCornerShape(8.dp)
+        ) {
             OutlinedTextField(
-                value = selectedOption,
+                value = date,
                 onValueChange = {},
                 readOnly = true,
                 label = {
@@ -600,126 +931,67 @@ fun DropdownField(label: String, selectedOption: String, options: List<String>, 
                     color = if (isDarkTheme) DarkInputText else TextDark,
                     fontSize = 14.sp
                 ),
+                isError = isError,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
                     unfocusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
                     focusedLabelColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
                     unfocusedLabelColor = if (isDarkTheme) DarkInputLabel else TextMedium,
-                    focusedBorderColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
-                    unfocusedBorderColor = if (isDarkTheme) DarkInputBorder else TextLight,
+                    focusedBorderColor = if (isError) ErrorRed else if (isDarkTheme) DarkInputFocused else PrimaryPink,
+                    unfocusedBorderColor = if (isError) ErrorRed else if (isDarkTheme) DarkInputBorder else TextLight,
+                    errorBorderColor = ErrorRed,
+                    errorLabelColor = ErrorRed,
                     cursorColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     disabledContainerColor = Color.Transparent
                 ),
-                modifier = Modifier.fillMaxWidth(),
                 trailingIcon = {
-                    IconButton(onClick = { expanded = true }) {
+                    IconButton(onClick = {
+                        val calendar = Calendar.getInstance()
+                        DatePickerDialog(
+                            context,
+                            { _, year, month, day ->
+                                onDateSelected("%04d-%02d-%02d".format(year, month + 1, day))
+                            },
+                            calendar.get(Calendar.YEAR),
+                            calendar.get(Calendar.MONTH),
+                            calendar.get(Calendar.DAY_OF_MONTH)
+                        ).show()
+                    }) {
                         Icon(
                             Icons.Filled.ArrowDropDown,
-                            contentDescription = "Dropdown",
+                            contentDescription = "Pick Date",
                             tint = if (isDarkTheme) DarkInputFocused else PrimaryPink
                         )
                     }
-                }
-            )
-
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
+                },
                 modifier = Modifier
-                    .background(
-                        if (isDarkTheme) DarkInputBackground else VeryLightPink
-                    )
-                    .width(IntrinsicSize.Min)
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            )
+        }
+
+        // Error message display
+        if (isError && errorMessage.isNotEmpty()) {
+            AnimatedVisibility(
+                visible = true,
+                enter = slideInVertically(
+                    animationSpec = tween(300),
+                    initialOffsetY = { -it }
+                ) + fadeIn(animationSpec = tween(300)),
+                exit = slideOutVertically(
+                    animationSpec = tween(300),
+                    targetOffsetY = { -it }
+                ) + fadeOut(animationSpec = tween(300))
             ) {
-                options.forEach { option ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                option,
-                                color = if (isDarkTheme) DarkInputText else TextDark
-                            )
-                        },
-                        onClick = {
-                            onOptionSelected(option)
-                            expanded = false
-                        },
-                        colors = MenuDefaults.itemColors(
-                            textColor = if (isDarkTheme) DarkInputText else TextDark
-                        )
-                    )
-                }
+                Text(
+                    text = errorMessage,
+                    color = ErrorRed,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
             }
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DateField(label: String, date: String, onDateSelected: (String) -> Unit, isDarkTheme: Boolean) {
-    val context = LocalContext.current
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isDarkTheme) DarkInputBackground else White
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        shape = RoundedCornerShape(8.dp)
-    ) {
-        OutlinedTextField(
-            value = date,
-            onValueChange = {},
-            readOnly = true,
-            label = {
-                Text(
-                    label,
-                    color = if (isDarkTheme) DarkInputLabel else TextDark,
-                    fontWeight = FontWeight.Medium
-                )
-            },
-            textStyle = LocalTextStyle.current.copy(
-                color = if (isDarkTheme) DarkInputText else TextDark,
-                fontSize = 14.sp
-            ),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
-                unfocusedTextColor = if (isDarkTheme) DarkInputText else TextDark,
-                focusedLabelColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
-                unfocusedLabelColor = if (isDarkTheme) DarkInputLabel else TextMedium,
-                focusedBorderColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
-                unfocusedBorderColor = if (isDarkTheme) DarkInputBorder else TextLight,
-                cursorColor = if (isDarkTheme) DarkInputFocused else PrimaryPink,
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                disabledContainerColor = Color.Transparent
-            ),
-            trailingIcon = {
-                IconButton(onClick = {
-                    val calendar = Calendar.getInstance()
-                    DatePickerDialog(
-                        context,
-                        { _, year, month, day ->
-                            onDateSelected("%04d-%02d-%02d".format(year, month + 1, day))
-                        },
-                        calendar.get(Calendar.YEAR),
-                        calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH)
-                    ).show()
-                }) {
-                    Icon(
-                        Icons.Filled.ArrowDropDown,
-                        contentDescription = "Pick Date",
-                        tint = if (isDarkTheme) DarkInputFocused else PrimaryPink
-                    )
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        )
     }
 }

@@ -57,7 +57,7 @@ object EnhancedEncryptionTransit {
             this.copy(
                 complaintDate = complaintDate, // Excluded from encryption
                 vawcCase = SecurityManager.encrypt(SecurityManager.sanitizeInput(vawcCase)),
-                subCase = SecurityManager.encrypt(SecurityManager.sanitizeInput(subCase)),
+                // subCase is a set of booleans; do not encrypt booleans
                 caseStatus = SecurityManager.encrypt(SecurityManager.sanitizeInput(caseStatus)),
                 referredTo = SecurityManager.encrypt(SecurityManager.sanitizeInput(referredTo)),
                 incidentDate = incidentDate, // Excluded from encryption
@@ -101,57 +101,179 @@ object EnhancedEncryptionTransit {
         }
     }
 
-    // Validation methods
-    fun validateComplainantData(complainant: ComplainantDetails): List<String> {
-        val errors = mutableListOf<String>()
+    // Enhanced validation methods with detailed field-level error messages
+    data class FieldError(val fieldName: String, val message: String)
+    
+    fun validateComplainantData(complainant: ComplainantDetails): List<FieldError> {
+        val errors = mutableListOf<FieldError>()
         
-        if (!SecurityManager.validateName(complainant.lastName)) {
-            errors.add("Invalid last name format")
+        // Check for empty required fields
+        if (complainant.lastName.isBlank()) {
+            errors.add(FieldError("lastName", "Last Name is required"))
+        } else if (!SecurityManager.validateName(complainant.lastName)) {
+            errors.add(FieldError("lastName", "Invalid last name format"))
         }
-        if (!SecurityManager.validateName(complainant.firstName)) {
-            errors.add("Invalid first name format")
+        
+        if (complainant.firstName.isBlank()) {
+            errors.add(FieldError("firstName", "First Name is required"))
+        } else if (!SecurityManager.validateName(complainant.firstName)) {
+            errors.add(FieldError("firstName", "Invalid first name format"))
         }
-        if (!SecurityManager.validateAge(complainant.age)) {
-            errors.add("Invalid age")
+        
+        if (complainant.middleName.isBlank()) {
+            errors.add(FieldError("middleName", "Middle Name is required"))
         }
-        if (!SecurityManager.validatePhone(complainant.cellNumber)) {
-            errors.add("Invalid phone number format")
+        
+        if (complainant.sexIdentification.isBlank()) {
+            errors.add(FieldError("sexIdentification", "Sex is required"))
         }
-        // Removed barangay validation since it's now a fixed value
+        
+        if (complainant.age.isBlank()) {
+            errors.add(FieldError("age", "Age is required"))
+        } else if (!SecurityManager.validateAge(complainant.age)) {
+            errors.add(FieldError("age", "Invalid age format"))
+        }
+        
+        if (complainant.birthdate.isBlank()) {
+            errors.add(FieldError("birthdate", "Birthdate is required"))
+        }
+        
+        if (complainant.civilStatus.isBlank()) {
+            errors.add(FieldError("civilStatus", "Civil Status is required"))
+        }
+        
+        if (complainant.religion.isBlank()) {
+            errors.add(FieldError("religion", "Religion is required"))
+        }
+        
+        if (complainant.nationality.isBlank()) {
+            errors.add(FieldError("nationality", "Nationality is required"))
+        }
+        
+        if (complainant.occupation.isBlank()) {
+            errors.add(FieldError("occupation", "Occupation is required"))
+        }
+        
+        if (complainant.cellNumber.isBlank()) {
+            errors.add(FieldError("cellNumber", "Cell Number is required"))
+        } else if (!SecurityManager.validatePhone(complainant.cellNumber)) {
+            errors.add(FieldError("cellNumber", "Invalid phone number format"))
+        }
+        
+        if (complainant.address.purok.isBlank()) {
+            errors.add(FieldError("purok", "Purok is required"))
+        }
         
         return errors
     }
 
-    fun validateRespondentData(respondent: RespondentDetails): List<String> {
-        val errors = mutableListOf<String>()
+    fun validateRespondentData(respondent: RespondentDetails): List<FieldError> {
+        val errors = mutableListOf<FieldError>()
         
-        if (!SecurityManager.validateName(respondent.lastName)) {
-            errors.add("Invalid respondent last name format")
+        // Check for empty required fields
+        if (respondent.lastName.isBlank()) {
+            errors.add(FieldError("respondent_lastName", "Respondent Last Name is required"))
+        } else if (!SecurityManager.validateName(respondent.lastName)) {
+            errors.add(FieldError("respondent_lastName", "Invalid respondent last name format"))
         }
-        if (!SecurityManager.validateName(respondent.firstName)) {
-            errors.add("Invalid respondent first name format")
+        
+        if (respondent.firstName.isBlank()) {
+            errors.add(FieldError("respondent_firstName", "Respondent First Name is required"))
+        } else if (!SecurityManager.validateName(respondent.firstName)) {
+            errors.add(FieldError("respondent_firstName", "Invalid respondent first name format"))
         }
-        if (!SecurityManager.validateAge(respondent.age)) {
-            errors.add("Invalid respondent age")
+        
+        if (respondent.middleName.isBlank()) {
+            errors.add(FieldError("respondent_middleName", "Respondent Middle Name is required"))
         }
-        if (!SecurityManager.validatePhone(respondent.cellNumber)) {
-            errors.add("Invalid respondent phone number format")
+        
+        if (respondent.alias.isBlank()) {
+            errors.add(FieldError("respondent_alias", "Respondent Alias is required"))
         }
-        // Removed barangay validation since it's now a fixed value
+        
+        if (respondent.sexIdentification.isBlank()) {
+            errors.add(FieldError("respondent_sexIdentification", "Respondent Sex is required"))
+        }
+        
+        if (respondent.age.isBlank()) {
+            errors.add(FieldError("respondent_age", "Respondent Age is required"))
+        } else if (!SecurityManager.validateAge(respondent.age)) {
+            errors.add(FieldError("respondent_age", "Invalid respondent age format"))
+        }
+        
+        if (respondent.birthdate.isBlank()) {
+            errors.add(FieldError("respondent_birthdate", "Respondent Birthdate is required"))
+        }
+        
+        if (respondent.civilStatus.isBlank()) {
+            errors.add(FieldError("respondent_civilStatus", "Respondent Civil Status is required"))
+        }
+        
+        if (respondent.religion.isBlank()) {
+            errors.add(FieldError("respondent_religion", "Respondent Religion is required"))
+        }
+        
+        if (respondent.nationality.isBlank()) {
+            errors.add(FieldError("respondent_nationality", "Respondent Nationality is required"))
+        }
+        
+        if (respondent.occupation.isBlank()) {
+            errors.add(FieldError("respondent_occupation", "Respondent Occupation is required"))
+        }
+        
+        if (respondent.relationshipToComplainant.isBlank()) {
+            errors.add(FieldError("respondent_relationship", "Relationship to Complainant is required"))
+        }
+        
+        if (respondent.cellNumber.isBlank()) {
+            errors.add(FieldError("respondent_cellNumber", "Respondent Cell Number is required"))
+        } else if (!SecurityManager.validatePhone(respondent.cellNumber)) {
+            errors.add(FieldError("respondent_cellNumber", "Invalid respondent phone number format"))
+        }
+        
+        if (respondent.address.purok.isBlank()) {
+            errors.add(FieldError("respondent_purok", "Respondent Purok is required"))
+        }
         
         return errors
     }
 
-    fun validateCaseData(caseDetails: CaseDetails): List<String> {
-        val errors = mutableListOf<String>()
+    fun validateCaseData(caseDetails: CaseDetails): List<FieldError> {
+        val errors = mutableListOf<FieldError>()
         
-        if (caseDetails.incidentDescription.isBlank() || caseDetails.incidentDescription.length < 10) {
-            errors.add("Incident description must be at least 10 characters")
+        if (caseDetails.incidentDate.isBlank()) {
+            errors.add(FieldError("incidentDate", "Incident Date is required"))
         }
-        if (!SecurityManager.validateAddress(caseDetails.placeOfIncident.place)) {
-            errors.add("Invalid incident place")
+        
+        if (caseDetails.placeOfIncident.place.isBlank()) {
+            errors.add(FieldError("incidentPlace", "Place of Incident is required"))
+        } else if (!SecurityManager.validateAddress(caseDetails.placeOfIncident.place)) {
+            errors.add(FieldError("incidentPlace", "Invalid incident place format"))
+        }
+        
+        if (caseDetails.placeOfIncident.purok.isBlank()) {
+            errors.add(FieldError("incidentPurok", "Incident Purok is required"))
+        }
+        
+        if (caseDetails.incidentDescription.isBlank()) {
+            errors.add(FieldError("incidentDescription", "Incident Description is required"))
+        } else if (caseDetails.incidentDescription.length < 10) {
+            errors.add(FieldError("incidentDescription", "Incident description must be at least 10 characters"))
         }
         
         return errors
+    }
+    
+    // Legacy validation methods for backward compatibility
+    fun validateComplainantDataLegacy(complainant: ComplainantDetails): List<String> {
+        return validateComplainantData(complainant).map { it.message }
+    }
+
+    fun validateRespondentDataLegacy(respondent: RespondentDetails): List<String> {
+        return validateRespondentData(respondent).map { it.message }
+    }
+
+    fun validateCaseDataLegacy(caseDetails: CaseDetails): List<String> {
+        return validateCaseData(caseDetails).map { it.message }
     }
 }
